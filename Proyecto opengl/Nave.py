@@ -1,5 +1,7 @@
 from glob import glob
 from pickle import FALSE
+from tkinter.filedialog import LoadFileDialog
+from tkinter.tix import TEXT
 from turtle import circle
 from OpenGL.GL import *
 from OpenGL.GLUT import *
@@ -8,6 +10,8 @@ from modules.textures import loadTexture
 
 w,h= 500,500
 #Texturas chidas de la nave
+NAVE_IDLE = 0
+NAVE_RUN = 1
 texture_nave = 0
 
 #Dibujar Nave
@@ -34,7 +38,7 @@ def keyUp(key, x, y):
     xKeyup = 0
 
 def init():
-    glClearColor ( 1.0, 1.0, 1.0, 0.0 )
+    glClearColor ( 0.0, 0.0, 0.0, 0.0 )
     glEnable(GL_TEXTURE_2D)
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -85,7 +89,8 @@ def main():
     
     #Cargar textura
     texture_nave = loadTexture('Resources/nave.png')
-
+    #texture_nave.append([loadTexture('Resources/nave3.png')])
+    #texture_nave.append([loadTexture('Resources/nave.png')]) #41:44
     glutMainLoop()
 
 print("Presiona Escape para cerrar.")
