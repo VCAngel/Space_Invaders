@@ -1,26 +1,41 @@
 class GameObject:
-    """ Clases para la nave y aliens"""
-    __position = {'x': 0, 'y':0} # Maneje posicion
-    __size = {'x': 0, 'y':0} # Maneje tamaño
-    animator = [] #Lista bidimensional con los Frames del objeto
-    __index_state = 0 # Estado del pesonaje a animar
-    __latest_frame = 0 #Frame a dibujar
-    __mirror = False #No creo que sea necesario ya que la imagen se ve igual de derecha e izquierda xD
-
+    
     def __init__(self, x=0, y=0, w=0, h=0, frames = []):
-        self.__position['x'] = x
+        self.__position = {'x': 0, 'y': 0}
+        self.__last_position = {'x': 0, 'y': 0}
+        self.__size = {'x': 0, 'y': 0}
+        self.animator = [] #Lista bidimensional con los Frames del objeto
+        self.__index_state = 0 #Indice del estado del personaje a animar
+        self.__latest_frame = 0 #Indice del frame a dibujar
+        self.__mirror = False #mirror es False cuando voltea hacia la derecha
+        self.__velocity = {'x': 0, 'y': 0}
+        self.__MAX_VELOCITY = 10
+        
+        self.__position['x'] = x  #Accedemos gracias a las referencias y son privadas para que no las modifiquen
         self.__position['y'] = y
+        self.__last_position['x'] = x
+        self.__last_position['y'] = y
         self.__size['x'] = w
         self.__size['y'] = h
         self.animator = frames
-        
 
     def move(self, input):
-        '''input:
-        1.- Mover hacia la derecja
-        0.- No se mueve
-        -1.- Mover hacia la izquierda'''
-        self.__position['x'] += input
+        if input == 0:
+            if self.__velocity['x'] != 0:
+                self.__velocity['x'] -= 0.5*self.__velocity['x']
+            if abs(self.__velocity['x'] < 0.01):
+                self.__velocity['x'] = 0
+
+        else:            
+            self.__velocity['x'] = self.__position['x'] - self.__last_position['x'] + 0.5*input
+            if self.__velocity['x'] > self.__MAX_VELOCITY:
+                self.__velocity['x'] = self.__MAX_VELOCITY
+            if self.__velocity['x'] < -self.__MAX_VELOCITY:
+                self.__velocity['x'] = -self.__MAX_VELOCITY
+
+
+        self.__last_position['x'] = self.__position['x']
+        self.__position['x'] += self.__velocity['x']
 
     def change_state(self,index):
         if index >= len(self.animator):

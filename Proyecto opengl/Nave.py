@@ -3,8 +3,8 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from modules.textures import loadTexture
 from modules.gameobject import GameObject
-
-w,h= 500,500
+import random
+w,h= 1000,500
 
 
 #Movimiento
@@ -17,9 +17,41 @@ flag_down = False
 NAVE_IDLE = 0
 NAVE_RUN = 1
 texture_nave = []
-
+texture_alien = []
 #Elemento de nave
 nave_gameobject = GameObject()
+
+#Alien
+aliens= []
+
+
+
+#Alien
+def draw_aliens():
+    global aliens
+    for i in range(len(aliens)):
+        nave_gameobject = aliens[i]
+        x,y = nave_gameobject.get_position()
+        w,h = nave_gameobject.get_size()
+        pin_x_start, pin_x_end = (0,1)
+        glBindTexture(GL_TEXTURE_2D, nave_gameobject.get_frame_to_draw())
+        glBegin(GL_POLYGON)
+        glTexCoord2f(pin_x_start,0)
+        glVertex2d(x,y)
+        glTexCoord2f(pin_x_end,0)
+        glVertex2d(x+w,y)
+        glTexCoord2f(pin_x_end,1)
+        glVertex2d(x+w,y+h)
+        glTexCoord2f(pin_x_start,1)
+        glVertex2d(x,y+h)
+        glEnd()
+
+
+
+
+
+
+
 
 #Dibujar Nave
 def draw_nave():
@@ -87,7 +119,7 @@ def display():
 
     #---------------------DIBUJAR AQUI------------------------#
     draw_nave()
-
+    draw_aliens()
     #---------------------------------------------------------#
 
     glutSwapBuffers()
@@ -127,6 +159,14 @@ def timer_animate_nave(value):
     nave_gameobject.animate()
     glutPostRedisplay()
     glutTimerFunc(150, timer_animate_nave, 1)
+    
+
+def timer_create_alien(value):
+    global aliens, texture_alien
+    aliens.append(GameObject(random.randint(0,w-40),453,50,50,texture_alien))
+    glutPostRedisplay()
+    glutTimerFunc (5000, timer_create_alien,1)
+     
 
 #------------
 
@@ -150,10 +190,15 @@ def main():
 
     texture_nave.append([loadTexture('Resources/naveinput.png')])
     texture_nave.append([loadTexture('Resources/nave3.png'),loadTexture('Resources/nave2.png'),loadTexture('Resources/nave.png')])
-    nave_gameobject = GameObject(250,250,(int)(180/4),(int)(196/4),texture_nave)
+    nave_gameobject = GameObject(10,10,(int)(180/4),(int)(196/4),texture_nave)
      
+
+    texture_alien.append([loadTexture('Resources/perro.png')])
+
+
     timer_move_nave(0)
     timer_animate_nave(0)
+    timer_create_alien(0)
 
     glutMainLoop()
 
