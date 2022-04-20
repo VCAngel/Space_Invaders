@@ -58,6 +58,10 @@ def showScreen():
     glutSwapBuffers()
     
 
+
+
+
+
 def main():
     glutInit()
     glutInitDisplayMode(GLUT_RGBA)
