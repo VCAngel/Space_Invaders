@@ -3,8 +3,9 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from modules.textures import loadTexture
 from modules.gameobject import GameObject
+import numpy as np
 import random
-w,h= 1000,500
+screenWidth, screenHeight = 1000,500
 
 
 #Movimiento
@@ -18,8 +19,10 @@ NAVE_IDLE = 0
 NAVE_RUN = 1
 texture_nave = []
 texture_alien = []
+texture_laser = []
 #Elemento de nave
 nave_gameobject = GameObject()
+laser_gameobject = GameObject()
 
 #Alien
 aliens= []
@@ -46,13 +49,6 @@ def draw_aliens():
         glVertex2d(x,y+h)
         glEnd()
 
-
-
-
-
-
-
-
 #Dibujar Nave
 def draw_nave():
     global nave_gameobject
@@ -71,6 +67,36 @@ def draw_nave():
     glVertex2d(x,y+h)
     glEnd()
 
+def draw_lazer():
+    global laser_gameobject
+    x,y = laser_gameobject.get_position()
+    w,h = laser_gameobject.get_size()
+    pin_x_start, pin_x_end = (0,1)
+    glBindTexture(GL_TEXTURE_2D, laser_gameobject.get_frame_to_draw()) #Apartir de aqui dibujamos al mario
+    glBegin(GL_POLYGON)
+    glTexCoord2f(pin_x_start,0)
+    glVertex2d(x,y)
+    glTexCoord2f(pin_x_end,0)
+    glVertex2d(x+w,y)
+    glTexCoord2f(pin_x_end,1)
+    glVertex2d(x+w,y+h)
+    glTexCoord2f(pin_x_start,1)
+    glVertex2d(x,y+h)
+    glEnd()
+    
+
+def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
+    PI = 3.141592
+    angle = 2*PI/aristas
+    glColor3f(rojo, verde, azul)
+    glBegin(GL_POLYGON)
+    for i in range(aristas):
+        x = x1 + rad*np.cos(angle*i+(PI*rotacion))
+        y = y1 + rad*np.sin(angle*i+(PI*rotacion))
+        glVertex2d(x, y)
+    glEnd()
+    
+
 def keyPressed ( key, x, y ):
     global flag_left, flag_down, flag_right, flag_up
     if key == b'\x1b':
@@ -84,7 +110,7 @@ def keyPressed ( key, x, y ):
     if key == b'd':
         flag_right = True
 
-def keyUp(key, x, y):
+def keyUp( key, x, y ):
     global flag_left, flag_down, flag_right, flag_up
     if key == b'w':
         flag_up = False
@@ -94,6 +120,8 @@ def keyUp(key, x, y):
         flag_left = False
     if key == b'd':
         flag_right = False
+
+
 
 def init():
     glClearColor ( 0.0, 0.0, 0.0, 0.0 )
@@ -120,6 +148,7 @@ def display():
     #---------------------DIBUJAR AQUI------------------------#
     draw_nave()
     draw_aliens()
+    draw_lazer()
     #---------------------------------------------------------#
 
     glutSwapBuffers()
@@ -137,20 +166,19 @@ def timer_move_nave(value):
     if flag_right: 
         input = 1
         if state != NAVE_RUN:
-            nave_gameobject.change_state(NAVE_RUN)
-        if nave_gameobject.is_mirrored():  #Posiblemente se pueda quitar
-            nave_gameobject.set_mirror(False) #Quitar
+            nave_gameobject.change_state(NAVE_RUN)     
     elif flag_left:
         input = -1
         if state != NAVE_RUN:
             nave_gameobject.change_state(NAVE_RUN)
-        if not nave_gameobject.is_mirrored():  #Quitar
-            nave_gameobject.set_mirror(True)    #Quitar
+    elif flag_up: 
+       input = 1
     else: 
         if state != NAVE_IDLE:
             nave_gameobject.change_state(NAVE_IDLE)
 
-    nave_gameobject.move(input)
+    #nave_gameobject.move(input)
+    laser_gameobject.move_laser(input)
     glutPostRedisplay()
     glutTimerFunc(20, timer_move_nave, 1)
 
@@ -163,7 +191,7 @@ def timer_animate_nave(value):
 
 def timer_create_alien(value):
     global aliens, texture_alien
-    aliens.append(GameObject(random.randint(0,w-40),453,50,50,texture_alien))
+    aliens.append(GameObject(random.randint(0,screenWidth-40),453,50,50,texture_alien))
     glutPostRedisplay()
     glutTimerFunc (5000, timer_create_alien,1)
      
@@ -171,10 +199,10 @@ def timer_create_alien(value):
 #------------
 
 def main():
-    global texture_nave, nave_gameobject
-    glutInit (  )
+    global texture_nave, nave_gameobject, texture_laser, laser_gameobject
+    glutInit ()
     glutInitDisplayMode ( GLUT_RGBA )
-    glutInitWindowSize ( w, h )
+    glutInitWindowSize ( screenWidth, screenHeight )
     glutInitWindowPosition( 0, 0 )
     
     glutCreateWindow( "Ventana de PyOpenGL" )
@@ -192,8 +220,10 @@ def main():
     texture_nave.append([loadTexture('Resources/nave3.png'),loadTexture('Resources/nave2.png'),loadTexture('Resources/nave.png')])
     nave_gameobject = GameObject(10,10,(int)(180/4),(int)(196/4),texture_nave)
      
-
     texture_alien.append([loadTexture('Resources/perro.png')])
+
+    texture_laser.append([loadTexture('Resources/laser.png')])
+    laser_gameobject = GameObject(10,10,(int)(180/4),(int)(196/4),texture_laser)
 
 
     timer_move_nave(0)
