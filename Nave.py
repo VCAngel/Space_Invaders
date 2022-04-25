@@ -4,77 +4,73 @@ from OpenGL.GLU import *
 from modules.textures import loadTexture
 from modules.gameobject import GameObject
 import random
-w,h= 1000,500
+w, h = 1000, 500
 
 
-#Movimiento
+# Movimiento
 flag_left = False
 flag_right = False
 flag_up = False
 flag_down = False
 
-#Texturas chidas de la nave
+# Texturas chidas de la nave
 NAVE_IDLE = 0
 NAVE_RUN = 1
 texture_nave = []
 texture_alien = []
-#Elemento de nave
+# Elemento de nave
 nave_gameobject = GameObject()
 
-#Alien
-aliens= []
+# Alien
+aliens = []
 
 
-
-#Alien
+# Alien
 def draw_aliens():
     global aliens
     for i in range(len(aliens)):
         nave_gameobject = aliens[i]
-        x,y = nave_gameobject.get_position()
-        w,h = nave_gameobject.get_size()
-        pin_x_start, pin_x_end = (0,1)
+        x, y = nave_gameobject.get_position()
+        w, h = nave_gameobject.get_size()
+        pin_x_start, pin_x_end = (0, 1)
         glBindTexture(GL_TEXTURE_2D, nave_gameobject.get_frame_to_draw())
         glBegin(GL_POLYGON)
-        glTexCoord2f(pin_x_start,0)
-        glVertex2d(x,y)
-        glTexCoord2f(pin_x_end,0)
-        glVertex2d(x+w,y)
-        glTexCoord2f(pin_x_end,1)
-        glVertex2d(x+w,y+h)
-        glTexCoord2f(pin_x_start,1)
-        glVertex2d(x,y+h)
+        glTexCoord2f(pin_x_start, 0)
+        glVertex2d(x, y)
+        glTexCoord2f(pin_x_end, 0)
+        glVertex2d(x+w, y)
+        glTexCoord2f(pin_x_end, 1)
+        glVertex2d(x+w, y+h)
+        glTexCoord2f(pin_x_start, 1)
+        glVertex2d(x, y+h)
         glEnd()
 
 
-
-
-
-
-
-
-#Dibujar Nave
+# Dibujar Nave
 def draw_nave():
     global nave_gameobject
-    x,y = nave_gameobject.get_position()
-    w,h = nave_gameobject.get_size()
-    pin_x_start, pin_x_end = (1,0) if nave_gameobject.is_mirrored() else (0,1) # Posiblemente lo quite xd
-    glBindTexture(GL_TEXTURE_2D, nave_gameobject.get_frame_to_draw()) #Apartir de aqui dibujamos al mario
+    x, y = nave_gameobject.get_position()
+    w, h = nave_gameobject.get_size()
+    pin_x_start, pin_x_end = (1, 0) if nave_gameobject.is_mirrored() else (
+        0, 1)  # Posiblemente lo quite xd
+    # Apartir de aqui dibujamos al mario
+    glBindTexture(GL_TEXTURE_2D, nave_gameobject.get_frame_to_draw())
     glBegin(GL_POLYGON)
-    glTexCoord2f(pin_x_start,0)
-    glVertex2d(x,y)
-    glTexCoord2f(pin_x_end,0)
-    glVertex2d(x+w,y)
-    glTexCoord2f(pin_x_end,1)
-    glVertex2d(x+w,y+h)
-    glTexCoord2f(pin_x_start,1)
-    glVertex2d(x,y+h)
+    glTexCoord2f(pin_x_start, 0)
+    glVertex2d(x, y)
+    glTexCoord2f(pin_x_end, 0)
+    glVertex2d(x+w, y)
+    glTexCoord2f(pin_x_end, 1)
+    glVertex2d(x+w, y+h)
+    glTexCoord2f(pin_x_start, 1)
+    glVertex2d(x, y+h)
     glEnd()
 
-def keyPressed ( key, x, y ):
+
+def keyPressed(key, x, y):
     global flag_left, flag_down, flag_right, flag_up
     if key == b'\x1b':
-        glutLeaveMainLoop() 
+        glutLeaveMainLoop()
     if key == b'w':
         flag_up = True
     if key == b's':
@@ -83,6 +79,7 @@ def keyPressed ( key, x, y ):
         flag_left = True
     if key == b'd':
         flag_right = True
+
 
 def keyUp(key, x, y):
     global flag_left, flag_down, flag_right, flag_up
@@ -95,26 +92,29 @@ def keyUp(key, x, y):
     if key == b'd':
         flag_right = False
 
+
 def init():
-    glClearColor ( 0.0, 0.0, 0.0, 0.0 )
+    glClearColor(0.0, 0.0, 0.0, 0.0)
     glEnable(GL_TEXTURE_2D)
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
+
 def reshape(width, height):
     global w, h
-    glViewport ( 0, 0, width, height )
-    glMatrixMode ( GL_PROJECTION )
+    glViewport(0, 0, width, height)
+    glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     glOrtho(0.0, width, 0.0, height, 0.0, 1.0)
     w = width
     h = height
-    glMatrixMode ( GL_MODELVIEW )
+    glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
+
 def display():
-    glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )
-    glMatrixMode ( GL_MODELVIEW )
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
     #---------------------DIBUJAR AQUI------------------------#
@@ -124,29 +124,30 @@ def display():
 
     glutSwapBuffers()
 
+
 def animate():
-    temp =0  #Si cualquiera de estas funciones se activa pedimos al glut que "se actualice"
+    temp = 0  # Si cualquiera de estas funciones se activa pedimos al glut que "se actualice"
 
 
-#---Timers----
+# ---Timers----
 def timer_move_nave(value):
     global nave_gameobject, flag_left, flag_right
     global NAVE_IDLE, NAVE_RUN
     state = nave_gameobject.get_state
     input = 0
-    if flag_right: 
+    if flag_right:
         input = 1
         if state != NAVE_RUN:
             nave_gameobject.change_state(NAVE_RUN)
-        if nave_gameobject.is_mirrored():  #Posiblemente se pueda quitar
-            nave_gameobject.set_mirror(False) #Quitar
+        if nave_gameobject.is_mirrored():  # Posiblemente se pueda quitar
+            nave_gameobject.set_mirror(False)  # Quitar
     elif flag_left:
         input = -1
         if state != NAVE_RUN:
             nave_gameobject.change_state(NAVE_RUN)
-        if not nave_gameobject.is_mirrored():  #Quitar
-            nave_gameobject.set_mirror(True)    #Quitar
-    else: 
+        if not nave_gameobject.is_mirrored():  # Quitar
+            nave_gameobject.set_mirror(True)  # Quitar
+    else:
         if state != NAVE_IDLE:
             nave_gameobject.change_state(NAVE_IDLE)
 
@@ -154,53 +155,56 @@ def timer_move_nave(value):
     glutPostRedisplay()
     glutTimerFunc(20, timer_move_nave, 1)
 
+
 def timer_animate_nave(value):
     global nave_gameobject
     nave_gameobject.animate()
     glutPostRedisplay()
     glutTimerFunc(150, timer_animate_nave, 1)
-    
+
 
 def timer_create_alien(value):
     global aliens, texture_alien
-    aliens.append(GameObject(random.randint(0,w-40),453,50,50,texture_alien))
+    aliens.append(GameObject(random.randint(
+        0, w-40), 453, 50, 50, texture_alien))
     glutPostRedisplay()
-    glutTimerFunc (5000, timer_create_alien,1)
-     
+    glutTimerFunc(5000, timer_create_alien, 1) #->Crea enemigos cada 5 segundos
 
-#------------
+
+# ------------
 
 def main():
     global texture_nave, nave_gameobject
-    glutInit (  )
-    glutInitDisplayMode ( GLUT_RGBA )
-    glutInitWindowSize ( w, h )
-    glutInitWindowPosition( 0, 0 )
-    
-    glutCreateWindow( "Ventana de PyOpenGL" )
-    glutDisplayFunc (display) #Para dibujar la pantalla
-    #glutIdleFunc ( animate ) #Cosas que se ejecutan continuamente
-    glutReshapeFunc ( reshape ) #SE EJECUTA CUANDO CAMBIEMOS LA VENTANA
-    glutKeyboardFunc( keyPressed ) #Esye nos permite manejos de teclado
+    glutInit()
+    glutInitDisplayMode(GLUT_RGBA)
+    glutInitWindowSize(w, h)
+    glutInitWindowPosition(0, 0)
 
-    glutKeyboardUpFunc(keyUp)  
+    glutCreateWindow("Ventana de PyOpenGL")
+    glutDisplayFunc(display)  # Para dibujar la pantalla
+    # glutIdleFunc ( animate ) #Cosas que se ejecutan continuamente
+    glutReshapeFunc(reshape)  # SE EJECUTA CUANDO CAMBIEMOS LA VENTANA
+    glutKeyboardFunc(keyPressed)  # Esye nos permite manejos de teclado
+
+    glutKeyboardUpFunc(keyUp)
     init()
-    
-    #Cargar textura
+
+    # Cargar textura
 
     texture_nave.append([loadTexture('Resources/naveinput.png')])
-    texture_nave.append([loadTexture('Resources/nave3.png'),loadTexture('Resources/nave2.png'),loadTexture('Resources/nave.png')])
-    nave_gameobject = GameObject(10,10,(int)(180/4),(int)(196/4),texture_nave)
-     
+    texture_nave.append([loadTexture('Resources/nave3.png'),
+                        loadTexture('Resources/nave2.png'), loadTexture('Resources/nave.png')])
+    nave_gameobject = GameObject(
+        10, 10, (int)(180/4), (int)(196/4), texture_nave)
 
     texture_alien.append([loadTexture('Resources/perro.png')])
-
 
     timer_move_nave(0)
     timer_animate_nave(0)
     timer_create_alien(0)
 
     glutMainLoop()
+
 
 print("Presiona Escape para cerrar.")
 main()
