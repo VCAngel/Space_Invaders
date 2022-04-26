@@ -2,17 +2,21 @@ from gameobject import GameObject
 
 # * Clase para crear naves de jugador y aliens
 # Hereda de GameObject
-class Nave(GameObject):
-    def __init__(self, player=True, hp=3, laser_timer=500):
-        """Constructor de Naves
 
-        Parametros: 
-        player (boolean): True si la nave es del jugador
-        hp (int): Cantidad de golpes que aguanta
-        laser_timer (int): Tiempo en ms para intervalos entre cada disparo
-        """
-        super().__init__(player, hp, laser_timer)
-        self.__player = player
+
+class Nave(GameObject):
+    """Constructor de Naves
+
+    Parametros: 
+    player (boolean): True si la nave es del jugador
+    hp (int): Cantidad de golpes que aguanta
+    laser_timer (int): Tiempo en ms para intervalos entre cada disparo
+    """
+
+    def __init__(self, is_player=True, hp=3, laser_timer=500, textures=[], coords=[0, 0]):
+        posX, posY = coords
+        super().__init__(posX, posY, (int)(180/4), (int)(196/4), textures)
+        self.__is_player = is_player
         self.__hp = hp
         self.__laser_timer = laser_timer
 

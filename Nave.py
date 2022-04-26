@@ -5,7 +5,7 @@ from modules.textures import loadTexture
 from modules.gameobject import GameObject
 import numpy as np
 import random
-screenWidth, screenHeight = 1000,500
+screenWidth, screenHeight = 1080,720
 
 
 #Movimiento
@@ -14,7 +14,7 @@ flag_right = False
 flag_up = False
 flag_down = False
 
-#Texturas chidas de la nave
+#Texturas de la nave
 NAVE_IDLE = 0
 NAVE_RUN = 1
 texture_nave = []
@@ -54,7 +54,7 @@ def draw_nave():
     global nave_gameobject
     x,y = nave_gameobject.get_position()
     w,h = nave_gameobject.get_size()
-    pin_x_start, pin_x_end = (1,0) if nave_gameobject.is_mirrored() else (0,1) # Posiblemente lo quite xd
+    pin_x_start, pin_x_end = (0,1) # Posiblemente lo quite xd
     glBindTexture(GL_TEXTURE_2D, nave_gameobject.get_frame_to_draw()) #Apartir de aqui dibujamos al mario
     glBegin(GL_POLYGON)
     glTexCoord2f(pin_x_start,0)
@@ -196,7 +196,7 @@ def timer_create_alien(value):
     glutTimerFunc (5000, timer_create_alien,1)
      
 
-#------------
+### !Main function!
 
 def main():
     global texture_nave, nave_gameobject, texture_laser, laser_gameobject
@@ -214,7 +214,7 @@ def main():
     glutKeyboardUpFunc(keyUp)  
     init()
     
-    #Cargar textura
+    #Carga de Texturas
 
     texture_nave.append([loadTexture('Resources/naveinput.png')])
     texture_nave.append([loadTexture('Resources/nave3.png'),loadTexture('Resources/nave2.png'),loadTexture('Resources/nave.png')])
