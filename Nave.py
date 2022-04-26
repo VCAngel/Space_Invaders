@@ -37,12 +37,13 @@ player_score = 0
 #!-----Funciones de dibujo-----
 #Alien
 def draw_aliens():
-    for i in range(len(aliens)):
-        nave_gameobject = aliens[i]
-        x,y = nave_gameobject.get_position()
-        w,h = nave_gameobject.get_size()
+    #TODO Different aliens and stuff zamn
+    for i in range(len(alien_Objs)):
+        alien_gameObj = alien_Objs[i]
+        x,y = alien_gameObj.get_position()
+        w,h = alien_gameObj.get_size()
         pin_x_start, pin_x_end = (0,1)
-        glBindTexture(GL_TEXTURE_2D, nave_gameobject.get_frame_to_draw())
+        glBindTexture(GL_TEXTURE_2D, alien_gameObj.get_frame_to_draw())
         glBegin(GL_POLYGON)
         glTexCoord2f(pin_x_start,0)
         glVertex2d(x,y)
@@ -56,11 +57,10 @@ def draw_aliens():
 
 #Dibujar Nave
 def draw_nave():
-    global nave_gameobject
-    x,y = nave_gameobject.get_position()
-    w,h = nave_gameobject.get_size()
+    x,y = player_Obj.get_position()
+    w,h = player_Obj.get_size()
     pin_x_start, pin_x_end = (0,1) # Posiblemente lo quite xd
-    glBindTexture(GL_TEXTURE_2D, nave_gameobject.get_frame_to_draw()) #Apartir de aqui dibujamos al mario
+    glBindTexture(GL_TEXTURE_2D, player_Obj.get_frame_to_draw()) #Apartir de aqui dibujamos al mario
     glBegin(GL_POLYGON)
     glTexCoord2f(pin_x_start,0)
     glVertex2d(x,y)
@@ -72,7 +72,7 @@ def draw_nave():
     glVertex2d(x,y+h)
     glEnd()
 
-def draw_lazer():
+def draw_laser():
     global laser_gameobject
     x,y = laser_gameobject.get_position()
     w,h = laser_gameobject.get_size()
@@ -150,11 +150,12 @@ def display():
     glMatrixMode ( GL_MODELVIEW )
     glLoadIdentity()
 
-    #---------------------DIBUJAR AQUI------------------------#
+    #!---------------------DIBUJAR AQUI------------------------#
     draw_nave()
     draw_aliens()
-    draw_lazer()
-    #---------------------------------------------------------#
+    #TODO Workout laser shooting
+    # draw_laser()
+    #!---------------------------------------------------------#
 
     glutSwapBuffers()
 
@@ -238,6 +239,7 @@ def main():
     laser_textures.append([loadTexture('./Resources/laser.png')])
     player_Obj.set_laser_texture(laser_textures)
 
+    #-> Timers
     timer_move_nave(0)
     timer_animate_nave(0)
     timer_create_alien(0)
