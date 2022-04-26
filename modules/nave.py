@@ -1,4 +1,5 @@
-from gameobject import GameObject
+from .gameobject import GameObject
+from .textures import loadTexture
 
 # * Clase para crear naves de jugador y aliens
 # Hereda de GameObject
@@ -8,17 +9,20 @@ class Nave(GameObject):
     """Constructor de Naves
 
     Parametros: 
-    player (boolean): True si la nave es del jugador
-    hp (int): Cantidad de golpes que aguanta
-    laser_timer (int): Tiempo en ms para intervalos entre cada disparo
+        player (boolean): True si la nave es del jugador
+        hp (int): Cantidad de golpes que aguanta
+        laser_timer (int): Tiempo en ms para intervalos entre cada disparo
+    
+    No tiene textura por default. Usar método set_laser_texture().
     """
 
-    def __init__(self, is_player=True, hp=3, laser_timer=500, textures=[], coords=[0, 0]):
+    def __init__(self, coords=[0, 0], hp=1, laser_timer=500, textures=[], is_player=True):
         posX, posY = coords
         super().__init__(posX, posY, (int)(180/4), (int)(196/4), textures)
         self.__is_player = is_player
         self.__hp = hp
         self.__laser_timer = laser_timer
+        self.__laser_textures = None
 
     def get_hp(self):
         return self.__hp
@@ -32,5 +36,22 @@ class Nave(GameObject):
     def set_laser_timer(self, laser_timer):
         self.__laser_timer = laser_timer
 
-    def shoot(self):
-        print('Shoot!')
+    def set_laser_texture(self, textures=[]):
+        self.__laser_textures = textures
+
+    def shoot_laser(self):
+        laser_Obj = None
+        if self.__is_player:
+            laser_Obj = Laser(self.get_position(), 1, self.__laser_textures)
+            laser_Obj.move_laser(1)
+
+        # TODO create laser gameobj logic
+
+
+class Laser(GameObject):
+    def __init__(self, coords=[0, 0], base_dmg=1, textures=[]):
+        posX, posY = coords
+        super().__init__(posX, posY, (int)(180/4), (int)(196/4), textures)
+        self.__base_dmg = base_dmg
+
+    #TODO Other methods

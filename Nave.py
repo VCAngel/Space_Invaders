@@ -2,36 +2,42 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from modules.textures import loadTexture
-from modules.gameobject import GameObject
+# from modules.gameobject import GameObject
+from modules.nave import Nave
 import numpy as np
 import random
-screenWidth, screenHeight = 1080,720
 
+#!-----Variables importantes-----
+## Ventana
+screenWidth, screenHeight = 1080,720 
 
-#Movimiento
+## Movimiento
 flag_left = False
 flag_right = False
 flag_up = False
 flag_down = False
 
-#Texturas de la nave
+## Arrays de texturas
+player_textures = []
+alien_textures_type1 = []
+alien_textures_type2 = []
+alien_textures_type3 = []
+alien_textures_special = []
+laser_textures = []
 NAVE_IDLE = 0
 NAVE_RUN = 1
-texture_nave = []
-texture_alien = []
-texture_laser = []
-#Elemento de nave
-nave_gameobject = GameObject()
-laser_gameobject = GameObject()
 
-#Alien
-aliens= []
+## Elementos de juego
+player_Obj = None
+alien_Objs = [] #-> Array de instancias Nave para aliens
+# laser_gameobject = GameObject
 
+# Puntuación de jugador
+player_score = 0
 
-
+#!-----Funciones de dibujo-----
 #Alien
 def draw_aliens():
-    global aliens
     for i in range(len(aliens)):
         nave_gameobject = aliens[i]
         x,y = nave_gameobject.get_position()
@@ -157,7 +163,7 @@ def animate():
     temp =0  #Si cualquiera de estas funciones se activa pedimos al glut que "se actualice"
 
 
-#---Timers----
+#!-----Timers-------
 def timer_move_nave(value):
     global nave_gameobject, flag_left, flag_right
     global NAVE_IDLE, NAVE_RUN
@@ -190,40 +196,43 @@ def timer_animate_nave(value):
     
 
 def timer_create_alien(value):
-    global aliens, texture_alien
-    aliens.append(GameObject(random.randint(0,screenWidth-40),453,50,50,texture_alien))
+    global aliens, alien_textures_type1
+    aliens.append(GameObject(random.randint(0,screenWidth-40),453,50,50,alien_textures_type1))
     glutPostRedisplay()
     glutTimerFunc (5000, timer_create_alien,1)
      
 
-### !Main function!
+#!----Main function-----
 
 def main():
-    global texture_nave, nave_gameobject, texture_laser, laser_gameobject
     glutInit ()
     glutInitDisplayMode ( GLUT_RGBA )
     glutInitWindowSize ( screenWidth, screenHeight )
     glutInitWindowPosition( 0, 0 )
     
-    glutCreateWindow( "Ventana de PyOpenGL" )
+    glutCreateWindow( "Catattack!" )
     glutDisplayFunc (display) #Para dibujar la pantalla
     #glutIdleFunc ( animate ) #Cosas que se ejecutan continuamente
     glutReshapeFunc ( reshape ) #SE EJECUTA CUANDO CAMBIEMOS LA VENTANA
-    glutKeyboardFunc( keyPressed ) #Esye nos permite manejos de teclado
-
+    glutKeyboardFunc( keyPressed ) #Este nos permite manejos de teclado
     glutKeyboardUpFunc(keyUp)  
     init()
-    
-    #Carga de Texturas
 
-    texture_nave.append([loadTexture('Resources/naveinput.png')])
-    texture_nave.append([loadTexture('Resources/nave3.png'),loadTexture('Resources/nave2.png'),loadTexture('Resources/nave.png')])
-    nave_gameobject = GameObject(10,10,(int)(180/4),(int)(196/4),texture_nave)
+    #-> Carga de Recursos
+    ##: Texturas de jugador
+    player_textures.append([loadTexture('./Resources/naveinput.png')])
+    player_textures.append([loadTexture('./Resources/nave3.png'),loadTexture('./Resources/nave2.png'),loadTexture('./Resources/nave.png')])
+    player_Obj = Nave([10,10], 10,500,player_textures, True)
      
-    texture_alien.append([loadTexture('Resources/perro.png')])
+    ##: Texturas de aliens
+    alien_textures_type1.append([loadTexture('./Resources/perro.png')])
+    alien_textures_type2.append([loadTexture('./Resources/perro.png')])
+    alien_textures_type3.append([loadTexture('./Resources/perro.png')])
+    alien_textures_special.append([loadTexture('./Resources/perro.png')])
 
-    texture_laser.append([loadTexture('Resources/laser.png')])
-    laser_gameobject = GameObject(10,10,(int)(180/4),(int)(196/4),texture_laser)
+    ##: Texturas de laser
+    laser_textures.append([loadTexture('./Resources/laser.png')])
+    laser_gameobject = GameObject(10,10,(int)(180/4),(int)(196/4),laser_textures)
 
 
     timer_move_nave(0)
@@ -232,5 +241,5 @@ def main():
 
     glutMainLoop()
 
-print("Presiona Escape para cerrar.")
+print("Presiona Escape para salir!")
 main()
