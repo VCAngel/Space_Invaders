@@ -71,9 +71,3 @@ class GameObject:
 
     def get_size(self):
         return self.__size['x'], self.__size['y']
-
-    def set_mirror(self, value):
-        self.__mirror = value
-
-    def is_mirrored(self):
-        return self.__mirror
