@@ -1,5 +1,4 @@
 from .gameobject import GameObject
-from .textures import loadTexture
 
 # * Clase para crear naves de jugador y aliens
 # Hereda de GameObject

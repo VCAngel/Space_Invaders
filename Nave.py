@@ -24,13 +24,12 @@ alien_textures_type2 = []
 alien_textures_type3 = []
 alien_textures_special = []
 laser_textures = []
-NAVE_IDLE = 0
-NAVE_RUN = 1
+PLAYER_IDLE = 0
+PLAYER_RUN = 1
 
 ## Elementos de juego
 player_Obj = None
 alien_Objs = [] #-> Array de instancias Nave para aliens
-# laser_gameobject = GameObject
 
 # Puntuación de jugador
 player_score = 0
@@ -165,39 +164,40 @@ def animate():
 
 #!-----Timers-------
 def timer_move_nave(value):
-    global nave_gameobject, flag_left, flag_right
-    global NAVE_IDLE, NAVE_RUN
-    state = nave_gameobject.get_state
+    global PLAYER_IDLE, PLAYER_RUN
+    state = player_Obj.get_state()
     input = 0
     if flag_right: 
         input = 1
-        if state != NAVE_RUN:
-            nave_gameobject.change_state(NAVE_RUN)     
+        if state != PLAYER_RUN:
+            player_Obj.change_state(PLAYER_RUN)     
     elif flag_left:
         input = -1
-        if state != NAVE_RUN:
-            nave_gameobject.change_state(NAVE_RUN)
+        if state != PLAYER_RUN:
+            player_Obj.change_state(PLAYER_RUN)
     elif flag_up: 
        input = 1
     else: 
-        if state != NAVE_IDLE:
-            nave_gameobject.change_state(NAVE_IDLE)
+        if state != PLAYER_IDLE:
+            player_Obj.change_state(PLAYER_IDLE)
 
-    #nave_gameobject.move(input)
-    laser_gameobject.move_laser(input)
+    player_Obj.move(input)
+    # laser_gameobject.move_laser(input)
     glutPostRedisplay()
     glutTimerFunc(20, timer_move_nave, 1)
 
 def timer_animate_nave(value):
-    global nave_gameobject
-    nave_gameobject.animate()
+    global player_Obj
+    player_Obj.animate()
     glutPostRedisplay()
     glutTimerFunc(150, timer_animate_nave, 1)
     
 
 def timer_create_alien(value):
-    global aliens, alien_textures_type1
-    aliens.append(GameObject(random.randint(0,screenWidth-40),453,50,50,alien_textures_type1))
+    global alien_Objs, alien_textures_type1
+    coords = [random.randint(0,screenWidth-50), screenHeight-50]
+    alien_Objs.append(Nave(coords,1,500,alien_textures_type1, False))
+    # alien_Objs.append(GameObject(random.randint(0,screenWidth-40),453,50,50,alien_textures_type1))
     glutPostRedisplay()
     glutTimerFunc (5000, timer_create_alien,1)
      
@@ -205,6 +205,10 @@ def timer_create_alien(value):
 #!----Main function-----
 
 def main():
+    global player_Obj, player_textures
+    global alien_textures_type1, alien_textures_type2, alien_textures_type3, alien_textures_special
+    global laser_textures
+
     glutInit ()
     glutInitDisplayMode ( GLUT_RGBA )
     glutInitWindowSize ( screenWidth, screenHeight )
@@ -232,8 +236,7 @@ def main():
 
     ##: Texturas de laser
     laser_textures.append([loadTexture('./Resources/laser.png')])
-    laser_gameobject = GameObject(10,10,(int)(180/4),(int)(196/4),laser_textures)
-
+    player_Obj.set_laser_texture(laser_textures)
 
     timer_move_nave(0)
     timer_animate_nave(0)
