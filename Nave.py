@@ -18,8 +18,11 @@ flag_up = False
 flag_down = False
 flag_enter = False
 
-## Menu images
+## Menu assets
 menu_pug_textures = []
+color_1 = [62/255,0/255,74/255]
+color_2 = [20/255,3/255,61/255]
+min_blue_1, min_blue_2 = True, True #Para crear efecto en degradado
 
 ## Arrays de texturas
 player_textures = []
@@ -42,11 +45,53 @@ player_score = 0
 #!-----Funciones de dibujo-----
 #Menu
 def load_menu():
+    global  min_blue_1, min_blue_2
     x,y = menu_pug.get_position()
     w,h = menu_pug.get_size()
-    pin_x_start, pin_x_end = (0,1)
+    color_increment = 1/255
     glBindTexture(GL_TEXTURE_2D, 0) #! Importante: si dejamos la textura en 0, podemos dibujar tambien
-    polygon(6,50,50,50,1,0,0,0)
+    #:-----Cuadrilatero degradado
+    glBegin(GL_QUADS)
+    glColor3f(color_1[0], color_1[1], color_1[2])
+    glVertex2d(50,50)
+    glColor3f(color_1[0], color_1[1], color_1[2])
+    glVertex2d(50,screenHeight-50)
+    glColor3f(color_2[0], color_2[1], color_2[2])
+    glVertex2d(screenWidth-50,screenHeight-50)
+    glColor3f(color_2[0], color_2[1], color_2[2])
+    glVertex2d(screenWidth-50,50)
+    glEnd()
+    glColor3f(1,1,1)
+
+    if min_blue_1:
+        if color_1[2] < .90:
+            color_1[0] *= color_increment
+            color_1[2] += color_increment
+        else: 
+            min_blue_1 = False
+    else: 
+        if color_1[2] >= 74/255:
+            color_1[0] -= color_increment
+            color_1[2] -= color_increment
+        else: 
+            min_blue_1 = True
+    
+    if min_blue_2:
+        if color_2[2] < .70:
+            color_2[0] += color_increment
+            color_2[2] += color_increment
+        else: 
+            min_blue_2 = False
+    else: 
+        if color_2[2] >= 61/255:
+            color_2[0] -= color_increment
+            color_2[2] -= color_increment
+        else: 
+            min_blue_2 = True
+
+
+    #:-----
+    pin_x_start, pin_x_end = (0,1)
     glBindTexture(GL_TEXTURE_2D, menu_pug.get_frame_to_draw())
     glBegin(GL_POLYGON)
     glTexCoord2f(pin_x_start,0)
@@ -125,7 +170,6 @@ def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
         y = y1 + rad*np.sin(angle*i+(PI*rotacion))
         glVertex2d(x, y)
     glEnd()
-    glColor3f(1,1,1)
     
 #!-----Eventos de teclado------
 
