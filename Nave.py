@@ -111,7 +111,6 @@ def load_menu():
             min_blue_2 = True
     #:-----
 
-    #TODO Texto de inicio
     draw_texture(text_x,text_y,text_w,text_h,menu_text.get_frame_to_draw())
     draw_texture(pug_x,pug_y,pug_w,pug_h,menu_pug.get_frame_to_draw())
     
@@ -153,6 +152,14 @@ def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
         glVertex2d(x, y)
     glEnd()
     
+#!-----Colisiones-----
+def check_collision(): #TODO Colisiones para laseres, quitar vida, etc.
+    global alien_Objs
+    for i in range(len(alien_Objs)):
+        if player_Obj.is_collision(alien_Objs[i]):
+            alien_Objs.pop(i)
+            return
+
 #!-----Eventos de teclado------
 
 def keyPressed ( key, x, y ):
@@ -239,24 +246,12 @@ def timer_move_nave(value):
             if state != PLAYER_IDLE:
                 player_Obj.change_state(PLAYER_IDLE)
 
-        player_Obj.move(input)
+        player_Obj.move(input, screenWidth)
     
+    check_collision()
     glutPostRedisplay()
     glutTimerFunc(20, timer_move_nave, 1)
 
-def timer_laser (value):
-    if flag_enter:
-        global laser_Objs
-        x,y = player_Obj.get_position()
-        input = 0
-        if flag_up: 
-            input = 1
-            laser_Objs.append(Laser([x,y],1,laser_textures))
-
-        for laser in laser_Objs:
-            laser.move_laser(input)
-
-    glutTimerFunc(500,timer_laser,1)
 
 def timer_animate_nave(value):
     global player_Obj
@@ -272,7 +267,28 @@ def timer_create_alien(value):
         alien_Objs.append(Nave(coords,1,500,alien_textures_type1, False))
 
     glutPostRedisplay()
-    glutTimerFunc (5000, timer_create_alien,1)
+    glutTimerFunc (1000, timer_create_alien,1)
+
+def timer_move_alien(value):
+    for alien in alien_Objs:
+        alien.alien_move()
+        
+    glutPostRedisplay()
+    glutTimerFunc (20, timer_move_alien, 1)
+
+def timer_laser (value):
+    if flag_enter:
+        global laser_Objs
+        x,y = player_Obj.get_position()
+        input = 0
+        if flag_up: 
+            input = 1
+            laser_Objs.append(Laser([x,y],1,laser_textures))
+
+        for laser in laser_Objs:
+            laser.move_laser(input)
+
+    glutTimerFunc(500,timer_laser,1)
      
 
 #!----Main function-----
@@ -322,6 +338,7 @@ def main():
     timer_move_nave(0)
     timer_animate_nave(0)
     timer_create_alien(0)
+    timer_move_alien(0)
     timer_laser(0)
 
     glutMainLoop()

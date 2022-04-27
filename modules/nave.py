@@ -52,8 +52,3 @@ class Laser(GameObject):
         posX, posY = coords
         super().__init__(posX, posY, (int)(180/4), (int)(196/4), textures)
         self.__base_dmg = base_dmg
-    
-    def printLaser(self):
-        print("Laser")
-
-    #TODO Other methods
