@@ -130,7 +130,6 @@ def draw_nave():
     w,h = player_Obj.get_size()
     draw_texture(x,y,w,h,player_Obj.get_frame_to_draw())
 
-#TODO Averiguar como disparar el laser desde la clase de Nave
 def draw_laser():
     global laser_Objs    
     for i in range(len(laser_Objs)):
@@ -152,12 +151,36 @@ def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
         glVertex2d(x, y)
     glEnd()
     
-#!-----Colisiones-----
-def check_collision(): #TODO Colisiones para laseres, quitar vida, etc.
+#!-----Colisiones|Limites-----
+#TODO Colisiones para laseres, quitar vida, etc.
+def player_collision(): 
     global alien_Objs
     for i in range(len(alien_Objs)):
         if player_Obj.is_collision(alien_Objs[i]):
             alien_Objs.pop(i)
+            player_Obj.decrease_hp(1)
+            # print(player_Obj.get_hp())
+            return
+
+def player_laser_collision():
+    global alien_Objs, laser_Objs
+    for i in range(len(alien_Objs)):
+        for j in range(len(laser_Objs)):
+            if laser_Objs[j].is_collision(alien_Objs[i]):
+
+                alien_Objs[i].decrease_hp(laser_Objs[j].get_base_dmg())
+                if alien_Objs[i].get_hp() <= 0:
+                    alien_Objs.pop(i)
+
+                laser_Objs.pop(j)
+                return
+
+def laser_out_of_bounds():
+    global laser_Objs
+    for i in range(len(laser_Objs)):
+        x,y = laser_Objs[i].get_position()
+        if y > screenHeight:
+            laser_Objs.pop(i)
             return
 
 #!-----Eventos de teclado------
@@ -248,7 +271,8 @@ def timer_move_nave(value):
 
         player_Obj.move(input, screenWidth)
     
-    check_collision()
+    player_collision()
+    player_laser_collision()
     glutPostRedisplay()
     glutTimerFunc(20, timer_move_nave, 1)
 
@@ -262,12 +286,12 @@ def timer_animate_nave(value):
 
 def timer_create_alien(value):
     if flag_enter:
-        global alien_Objs, alien_textures_type1
-        coords = [random.randint(0,screenWidth-50), screenHeight-80]
+        global alien_Objs
+        coords = [random.randint(0,screenWidth-50), screenHeight+80]
         alien_Objs.append(Nave(coords,1,500,alien_textures_type1, False))
 
     glutPostRedisplay()
-    glutTimerFunc (1000, timer_create_alien,1)
+    glutTimerFunc (2000, timer_create_alien,1)
 
 def timer_move_alien(value):
     for alien in alien_Objs:
@@ -285,9 +309,11 @@ def timer_laser (value):
             input = 1
             laser_Objs.append(Laser([x,y],1,laser_textures))
 
+        #-> Mueve cada laser en laser_Objs
         for laser in laser_Objs:
             laser.move_laser(input)
 
+    laser_out_of_bounds()
     glutTimerFunc(500,timer_laser,1)
      
 
@@ -325,14 +351,12 @@ def main():
     player_Obj = Nave([screenWidth/2,30], 10,500,player_textures, True)
      
     ##: Texturas de aliens
-    alien_textures_type1.append([loadTexture('./Resources/perro.png')])
-    alien_textures_type2.append([loadTexture('./Resources/perro.png')])
-    alien_textures_type3.append([loadTexture('./Resources/perro.png')])
-    alien_textures_special.append([loadTexture('./Resources/perro.png')])
+    alien_textures_type1.append([loadTexture('./Resources/gataliens/aliencat.png')])
+    alien_textures_type2.append([loadTexture('./Resources/gataliens/aliencatblue.png')])
+    alien_textures_type3.append([loadTexture('./Resources/gataliens/aliencatyellow.png')])
 
     ##: Texturas de laser
     laser_textures.append([loadTexture('./Resources/gataliens/lazerred.png')])
-    player_Obj.set_laser_texture(laser_textures)
 
     #-> Timers
     timer_move_nave(0)

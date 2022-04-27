@@ -62,7 +62,7 @@ class GameObject:
             self.__position['x'] = 0
             self.__velocity['x'] *= 0
 
-    def alien_move(self, aliens = []):  #Movimiento vertical de los aliens
+    def alien_move(self):  #Movimiento vertical de los aliens
         if self.__velocity['y'] == 0:
             self.__velocity['y'] = -1
         

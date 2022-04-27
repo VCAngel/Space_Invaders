@@ -25,9 +25,9 @@ class Nave(GameObject):
 
     def get_hp(self):
         return self.__hp
-
-    def set_hp(self, hp):
-        self.__hp = hp
+    
+    def decrease_hp(self, value):
+        self.__hp -= value
 
     def get_laser_timer(self):
         return self.__laser_timer
@@ -52,3 +52,6 @@ class Laser(GameObject):
         posX, posY = coords
         super().__init__(posX, posY, (int)(180/4), (int)(196/4), textures)
         self.__base_dmg = base_dmg
+
+    def get_base_dmg(self):
+        return self.__base_dmg
