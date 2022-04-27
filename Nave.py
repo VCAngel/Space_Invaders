@@ -44,7 +44,9 @@ alien_Objs = [] #-> Array de instancias Nave para aliens
 laser_Objs = []
 
 # Puntuación de jugador
-player_score = 0
+player_score = 1000
+lvl_2_locked = True
+lvl_3_locked = True
 
 #!-----Funciones de dibujo-----
 def draw_texture(x,y,w,h,frame_to_draw=0): #-> Se usa para dibujar una textura con glBindTexture()
@@ -182,6 +184,7 @@ def laser_out_of_bounds():
         if y > screenHeight:
             laser_Objs.pop(i)
             return
+# TODO Colisiones de aliens hacia jugador
 
 #!-----Eventos de teclado------
 
@@ -242,7 +245,6 @@ def display():
         draw_laser()
         draw_nave()
         draw_aliens()
-    #TODO Workout laser shooting
     #!---------------------------------------------------------#
 
     glutSwapBuffers()
@@ -284,14 +286,40 @@ def timer_animate_nave(value):
     glutTimerFunc(150, timer_animate_nave, 1)
     
 
-def timer_create_alien(value):
+def timer_create_lvl_1(value):
+    global lvl_2_locked, lvl_3_locked
     if flag_enter:
         global alien_Objs
         coords = [random.randint(0,screenWidth-50), screenHeight+80]
         alien_Objs.append(Nave(coords,1,500,alien_textures_type1, False))
 
+    #TODO if score >= 250: correr lvl 2 aliens timer
+    if player_score >= 250 and lvl_2_locked:
+        lvl_2_locked = False
+        timer_create_lvl_2(0)
+
+    #TODO if score >= 1000: correr lvl 3 aliens timer
+    if player_score >= 1000 and lvl_3_locked:
+        lvl_3_locked = False
+        timer_create_lvl_3(0)
+
     glutPostRedisplay()
-    glutTimerFunc (2000, timer_create_alien,1)
+    glutTimerFunc (2000, timer_create_lvl_1,1)
+
+def timer_create_lvl_2(value):
+    global alien_Objs
+    coords = [random.randint(0,screenWidth-50), screenHeight+80]
+    alien_Objs.append(Nave(coords,2,333, alien_textures_type2,False))
+
+    glutTimerFunc (5000, timer_create_lvl_2,1)
+
+def timer_create_lvl_3(value):
+    global alien_Objs
+    coords = [random.randint(0,screenWidth-50), screenHeight+80]
+    alien_Objs.append(Nave(coords,2,1000, alien_textures_type3,False))
+
+    glutTimerFunc (7000, timer_create_lvl_3,1)
+
 
 def timer_move_alien(value):
     for alien in alien_Objs:
@@ -361,7 +389,7 @@ def main():
     #-> Timers
     timer_move_nave(0)
     timer_animate_nave(0)
-    timer_create_alien(0)
+    timer_create_lvl_1(0)
     timer_move_alien(0)
     timer_laser(0)
 
