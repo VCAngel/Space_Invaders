@@ -65,13 +65,13 @@ def load_menu():
 
     if min_blue_1:
         if color_1[2] < .90:
-            color_1[0] *= color_increment
+            color_1[0] += 0.5/255
             color_1[2] += color_increment
         else: 
             min_blue_1 = False
     else: 
         if color_1[2] >= 74/255:
-            color_1[0] -= color_increment
+            color_1[0] -= 0.5/255
             color_1[2] -= color_increment
         else: 
             min_blue_1 = True
@@ -88,9 +88,10 @@ def load_menu():
             color_2[2] -= color_increment
         else: 
             min_blue_2 = True
-
-
     #:-----
+
+    #TODO Texto de inicio
+
     pin_x_start, pin_x_end = (0,1)
     glBindTexture(GL_TEXTURE_2D, menu_pug.get_frame_to_draw())
     glBegin(GL_POLYGON)
