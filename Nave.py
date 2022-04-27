@@ -44,7 +44,7 @@ alien_Objs = [] #-> Array de instancias Nave para aliens
 laser_Objs = []
 
 # Puntuación de jugador
-player_score = 1000
+player_score = 0
 lvl_2_locked = True
 lvl_3_locked = True
 
@@ -177,13 +177,18 @@ def player_laser_collision():
                 laser_Objs.pop(j)
                 return
 
-def laser_out_of_bounds():
-    global laser_Objs
-    for i in range(len(laser_Objs)):
-        x,y = laser_Objs[i].get_position()
+def object_out_of_bounds(gameObjectArray = []):
+    for i in range(len(gameObjectArray)):
+        x,y = gameObjectArray[i].get_position()
         if y > screenHeight:
-            laser_Objs.pop(i)
+            if not isinstance(gameObjectArray[i], Nave):
+                gameObjectArray.pop(i)
+                return
+        
+        if y <= -25:
+            gameObjectArray.pop(i)
             return
+
 # TODO Colisiones de aliens hacia jugador
 
 #!-----Eventos de teclado------
@@ -293,15 +298,15 @@ def timer_create_lvl_1(value):
         coords = [random.randint(0,screenWidth-50), screenHeight+80]
         alien_Objs.append(Nave(coords,1,500,alien_textures_type1, False))
 
-    #TODO if score >= 250: correr lvl 2 aliens timer
-    if player_score >= 250 and lvl_2_locked:
-        lvl_2_locked = False
-        timer_create_lvl_2(0)
+        #TODO if score >= 250: correr lvl 2 aliens timer
+        if player_score >= 250 and lvl_2_locked:
+            lvl_2_locked = False
+            timer_create_lvl_2(0)
 
-    #TODO if score >= 1000: correr lvl 3 aliens timer
-    if player_score >= 1000 and lvl_3_locked:
-        lvl_3_locked = False
-        timer_create_lvl_3(0)
+        #TODO if score >= 1000: correr lvl 3 aliens timer
+        if player_score >= 1000 and lvl_3_locked:
+            lvl_3_locked = False
+            timer_create_lvl_3(0)
 
     glutPostRedisplay()
     glutTimerFunc (2000, timer_create_lvl_1,1)
@@ -311,6 +316,7 @@ def timer_create_lvl_2(value):
     coords = [random.randint(0,screenWidth-50), screenHeight+80]
     alien_Objs.append(Nave(coords,2,333, alien_textures_type2,False))
 
+    glutPostRedisplay()
     glutTimerFunc (5000, timer_create_lvl_2,1)
 
 def timer_create_lvl_3(value):
@@ -318,17 +324,20 @@ def timer_create_lvl_3(value):
     coords = [random.randint(0,screenWidth-50), screenHeight+80]
     alien_Objs.append(Nave(coords,2,1000, alien_textures_type3,False))
 
+    glutPostRedisplay()
     glutTimerFunc (7000, timer_create_lvl_3,1)
 
 
 def timer_move_alien(value):
+    global alien_Objs
     for alien in alien_Objs:
         alien.alien_move()
         
-    glutPostRedisplay()
+    object_out_of_bounds(alien_Objs)
     glutTimerFunc (20, timer_move_alien, 1)
 
 def timer_laser (value):
+    global laser_Objs
     if flag_enter:
         global laser_Objs
         x,y = player_Obj.get_position()
@@ -341,7 +350,7 @@ def timer_laser (value):
         for laser in laser_Objs:
             laser.move_laser(input)
 
-    laser_out_of_bounds()
+    object_out_of_bounds(laser_Objs)
     glutTimerFunc(500,timer_laser,1)
      
 
