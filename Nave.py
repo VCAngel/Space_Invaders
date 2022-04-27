@@ -21,6 +21,7 @@ flag_enter = False
 
 ## Menu assets
 menu_pug_textures = []
+menu_text_img = []
 color_1 = [62/255,0/255,74/255]
 color_2 = [20/255,3/255,61/255]
 min_blue_1, min_blue_2 = True, True #Para crear efecto en degradado
@@ -37,6 +38,7 @@ PLAYER_RUN = 1
 
 ## Elementos de juego
 menu_pug = None #-> Se usa para instancia GameObject
+menu_text = None
 player_Obj = None
 alien_Objs = [] #-> Array de instancias Nave para aliens
 laser_Objs = []
@@ -62,8 +64,10 @@ def draw_texture(x,y,w,h,frame_to_draw=0): #-> Se usa para dibujar una textura c
 #Menu
 def load_menu():
     global  min_blue_1, min_blue_2
-    x,y = menu_pug.get_position()
-    w,h = menu_pug.get_size()
+    pug_x,pug_y = menu_pug.get_position()
+    pug_w,pug_h = menu_pug.get_size()
+    text_x,text_y = menu_text.get_position()
+    text_w,text_h = menu_text.get_size()
     color_increment = 1/255
     glBindTexture(GL_TEXTURE_2D, 0) #! Importante: si dejamos la textura en 0, podemos dibujar tambien
     #:-----Cuadrilatero degradado
@@ -79,6 +83,7 @@ def load_menu():
     glEnd()
     glColor3f(1,1,1)
 
+    # Ciclo del degradado
     if min_blue_1:
         if color_1[2] < .90:
             color_1[0] += 0.5/255
@@ -107,8 +112,8 @@ def load_menu():
     #:-----
 
     #TODO Texto de inicio
-
-    draw_texture(x,y,w,h,menu_pug.get_frame_to_draw())
+    draw_texture(text_x,text_y,text_w,text_h,menu_text.get_frame_to_draw())
+    draw_texture(pug_x,pug_y,pug_w,pug_h,menu_pug.get_frame_to_draw())
     
 
 #Alien
@@ -218,36 +223,38 @@ def animate():
 
 #!-----Timers-------    
 def timer_move_nave(value):
-    global PLAYER_IDLE, PLAYER_RUN
-    state = player_Obj.get_state()
-    input = 0
-    if flag_right: 
-        input = 1
-        if state != PLAYER_RUN:
-            player_Obj.change_state(PLAYER_RUN)     
-    elif flag_left:
-        input = -1
-        if state != PLAYER_RUN:
-            player_Obj.change_state(PLAYER_RUN)
-    else: 
-        if state != PLAYER_IDLE:
-            player_Obj.change_state(PLAYER_IDLE)
+    if flag_enter:
+        global PLAYER_IDLE, PLAYER_RUN
+        state = player_Obj.get_state()
+        input = 0
+        if flag_right: 
+            input = 1
+            if state != PLAYER_RUN:
+                player_Obj.change_state(PLAYER_RUN)     
+        elif flag_left:
+            input = -1
+            if state != PLAYER_RUN:
+                player_Obj.change_state(PLAYER_RUN)
+        else: 
+            if state != PLAYER_IDLE:
+                player_Obj.change_state(PLAYER_IDLE)
 
-    player_Obj.move(input)
+        player_Obj.move(input)
     
     glutPostRedisplay()
     glutTimerFunc(20, timer_move_nave, 1)
 
 def timer_laser (value):
-    global laser_Objs
-    x,y = player_Obj.get_position()
-    input = 0
-    if flag_up: 
-        input = 1
-        laser_Objs.append(Laser([x,y],1,laser_textures))
+    if flag_enter:
+        global laser_Objs
+        x,y = player_Obj.get_position()
+        input = 0
+        if flag_up: 
+            input = 1
+            laser_Objs.append(Laser([x,y],1,laser_textures))
 
-    for laser in laser_Objs:
-        laser.move_laser(input)
+        for laser in laser_Objs:
+            laser.move_laser(input)
 
     glutTimerFunc(500,timer_laser,1)
 
@@ -259,10 +266,11 @@ def timer_animate_nave(value):
     
 
 def timer_create_alien(value):
-    global alien_Objs, alien_textures_type1
-    coords = [random.randint(0,screenWidth-50), screenHeight-50]
-    alien_Objs.append(Nave(coords,1,500,alien_textures_type1, False))
-    # alien_Objs.append(GameObject(random.randint(0,screenWidth-40),453,50,50,alien_textures_type1))
+    if flag_enter:
+        global alien_Objs, alien_textures_type1
+        coords = [random.randint(0,screenWidth-50), screenHeight-80]
+        alien_Objs.append(Nave(coords,1,500,alien_textures_type1, False))
+
     glutPostRedisplay()
     glutTimerFunc (5000, timer_create_alien,1)
      
@@ -270,7 +278,7 @@ def timer_create_alien(value):
 #!----Main function-----
 
 def main():
-    global menu_pug
+    global menu_pug, menu_text
     global player_Obj, player_textures
     global alien_textures_type1, alien_textures_type2, alien_textures_type3, alien_textures_special
     global laser_textures
@@ -292,11 +300,13 @@ def main():
     ##: Texturas de menu
     menu_pug_textures.append([loadTexture('./Resources/perro.png')])
     menu_pug = GameObject((screenWidth+100)-(screenWidth/2),-50,screenWidth/2,screenHeight-100,menu_pug_textures)
+    menu_text_img.append([loadTexture('./Resources/menu.png')])
+    menu_text = GameObject(100,100, 600, 500, menu_text_img)
 
     ##: Texturas de jugador
     player_textures.append([loadTexture('./Resources/naveinput.png')])
     player_textures.append([loadTexture('./Resources/nave3.png'),loadTexture('./Resources/nave2.png'),loadTexture('./Resources/nave.png')])
-    player_Obj = Nave([10,10], 10,500,player_textures, True)
+    player_Obj = Nave([screenWidth/2,30], 10,500,player_textures, True)
      
     ##: Texturas de aliens
     alien_textures_type1.append([loadTexture('./Resources/perro.png')])
