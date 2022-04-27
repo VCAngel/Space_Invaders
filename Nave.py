@@ -39,8 +39,7 @@ PLAYER_RUN = 1
 menu_pug = None #-> Se usa para instancia GameObject
 player_Obj = None
 alien_Objs = [] #-> Array de instancias Nave para aliens
-laser_gameobject = []
-laser_Obj = []
+laser_Objs = []
 
 # Puntuación de jugador
 player_score = 0
@@ -129,23 +128,12 @@ def draw_nave():
 
 #TODO Averiguar como disparar el laser desde la clase de Nave
 def draw_laser():
-    global laser_Obj    
-    for i in range(len(laser_Obj)):
-        laser_gameObj = laser_Obj[i]
+    global laser_Objs    
+    for i in range(len(laser_Objs)):
+        laser_gameObj = laser_Objs[i]
         x,y = laser_gameObj.get_position()
         w,h = laser_gameObj.get_size()
-        pin_x_start, pin_x_end = (0,1)
-        glBindTexture(GL_TEXTURE_2D, laser_gameObj.get_frame_to_draw()) #Apartir de aqui dibujamos al mario
-        glBegin(GL_POLYGON)
-        glTexCoord2f(pin_x_start,0)
-        glVertex2d(x,y)
-        glTexCoord2f(pin_x_end,0)
-        glVertex2d(x+w,y)
-        glTexCoord2f(pin_x_end,1)
-        glVertex2d(x+w,y+h)
-        glTexCoord2f(pin_x_start,1)
-        glVertex2d(x,y+h)
-        glEnd()
+        draw_texture(x,y,w,h,laser_gameObj.get_frame_to_draw())
         laser_gameObj.move_laser(1)
     
 
@@ -216,10 +204,10 @@ def display():
     if not flag_enter:
         load_menu()
     else:
+        draw_laser()
         draw_nave()
         draw_aliens()
     #TODO Workout laser shooting
-    draw_laser()
     #!---------------------------------------------------------#
 
     glutSwapBuffers()
@@ -241,25 +229,24 @@ def timer_move_nave(value):
         input = -1
         if state != PLAYER_RUN:
             player_Obj.change_state(PLAYER_RUN)
-    
     else: 
         if state != PLAYER_IDLE:
             player_Obj.change_state(PLAYER_IDLE)
 
     player_Obj.move(input)
-  
     
     glutPostRedisplay()
     glutTimerFunc(20, timer_move_nave, 1)
 
 def timer_laser (value):
-    global laser_Obj
+    global laser_Objs
     x,y = player_Obj.get_position()
     input = 0
     if flag_up: 
         input = 1
-        laser_Obj.append(Laser([x,y],1,laser_textures))
-    for laser in laser_Obj:
+        laser_Objs.append(Laser([x,y],1,laser_textures))
+
+    for laser in laser_Objs:
         laser.move_laser(input)
 
     glutTimerFunc(500,timer_laser,1)
