@@ -21,7 +21,7 @@ class GameObject:
 
     def move_laser(self, input):
         if input == 1:
-            self.__velocity['y'] =  self.__position['y'] + 1*input
+            self.__velocity['y'] = self.__position['y'] + 1
             if self.__velocity['y'] > self.__MAX_VELOCITY:
                 self.__velocity['y'] = self.__MAX_VELOCITY
             if self.__velocity['y'] < -self.__MAX_VELOCITY:

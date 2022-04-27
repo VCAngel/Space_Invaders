@@ -4,6 +4,7 @@ from OpenGL.GLU import *
 from modules.textures import loadTexture
 from modules.gameobject import GameObject
 from modules.nave import Nave
+from modules.nave import Laser
 import numpy as np
 import random
 
@@ -38,6 +39,7 @@ PLAYER_RUN = 1
 menu_pug = None #-> Se usa para instancia GameObject
 player_Obj = None
 alien_Objs = [] #-> Array de instancias Nave para aliens
+laser_Objs = []
 
 # Puntuación de jugador
 player_score = 0
@@ -126,10 +128,13 @@ def draw_nave():
 
 #TODO Averiguar como disparar el laser desde la clase de Nave
 def draw_laser():
-    global laser_gameobject
-    x,y = laser_gameobject.get_position()
-    w,h = laser_gameobject.get_size()
-    draw_texture(x,y,w,h,laser_gameobject.get_frame_to_draw())
+    global laser_Objs    
+    for i in range(len(laser_Objs)):
+        laser_gameObj = laser_Objs[i]
+        x,y = laser_gameObj.get_position()
+        w,h = laser_gameObj.get_size()
+        draw_texture(x,y,w,h,laser_gameObj.get_frame_to_draw())
+        laser_gameObj.move_laser(1)
     
 
 def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
@@ -199,10 +204,10 @@ def display():
     if not flag_enter:
         load_menu()
     else:
+        draw_laser()
         draw_nave()
         draw_aliens()
     #TODO Workout laser shooting
-    # draw_laser()
     #!---------------------------------------------------------#
 
     glutSwapBuffers()
@@ -224,16 +229,27 @@ def timer_move_nave(value):
         input = -1
         if state != PLAYER_RUN:
             player_Obj.change_state(PLAYER_RUN)
-    elif flag_up: 
-       input = 1
     else: 
         if state != PLAYER_IDLE:
             player_Obj.change_state(PLAYER_IDLE)
 
     player_Obj.move(input)
-    # laser_gameobject.move_laser(input)
+    
     glutPostRedisplay()
     glutTimerFunc(20, timer_move_nave, 1)
+
+def timer_laser (value):
+    global laser_Objs
+    x,y = player_Obj.get_position()
+    input = 0
+    if flag_up: 
+        input = 1
+        laser_Objs.append(Laser([x,y],1,laser_textures))
+
+    for laser in laser_Objs:
+        laser.move_laser(input)
+
+    glutTimerFunc(500,timer_laser,1)
 
 def timer_animate_nave(value):
     global player_Obj
@@ -289,13 +305,14 @@ def main():
     alien_textures_special.append([loadTexture('./Resources/perro.png')])
 
     ##: Texturas de laser
-    laser_textures.append([loadTexture('./Resources/laser.png')])
+    laser_textures.append([loadTexture('./Resources/gataliens/lazerred.png')])
     player_Obj.set_laser_texture(laser_textures)
 
     #-> Timers
     timer_move_nave(0)
     timer_animate_nave(0)
     timer_create_alien(0)
+    timer_laser(0)
 
     glutMainLoop()
 

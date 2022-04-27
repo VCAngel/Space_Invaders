@@ -35,13 +35,13 @@ class Nave(GameObject):
     def set_laser_timer(self, laser_timer):
         self.__laser_timer = laser_timer
 
-    def set_laser_texture(self, textures=[]):
+    def set_laser_texture(self, textures=[]): #quitar
         self.__laser_textures = textures
 
     def shoot_laser(self):
         laser_Obj = None
         if self.__is_player:
-            laser_Obj = Laser(self.get_position(), 1, self.__laser_textures)
+            laser_Obj = Laser(self.get_position(), 1, self.__laser_textures) #quitar
             laser_Obj.move_laser(1)
 
         # TODO create laser gameobj logic
@@ -52,5 +52,8 @@ class Laser(GameObject):
         posX, posY = coords
         super().__init__(posX, posY, (int)(180/4), (int)(196/4), textures)
         self.__base_dmg = base_dmg
+    
+    def printLaser(self):
+        print("Laser")
 
     #TODO Other methods
