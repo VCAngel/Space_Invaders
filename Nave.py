@@ -2,7 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from modules.textures import loadTexture
-# from modules.gameobject import GameObject
+from modules.gameobject import GameObject
 from modules.nave import Nave
 from modules.nave import Laser
 import numpy as np
@@ -12,11 +12,18 @@ import random
 ## Ventana
 screenWidth, screenHeight = 1080,720 
 
-## Movimiento
+## Deteccion de teclado
 flag_left = False
 flag_right = False
 flag_up = False
 flag_down = False
+flag_enter = False
+
+## Menu assets
+menu_pug_textures = []
+color_1 = [62/255,0/255,74/255]
+color_2 = [20/255,3/255,61/255]
+min_blue_1, min_blue_2 = True, True #Para crear efecto en degradado
 
 ## Arrays de texturas
 player_textures = []
@@ -29,6 +36,7 @@ PLAYER_IDLE = 0
 PLAYER_RUN = 1
 
 ## Elementos de juego
+menu_pug = None #-> Se usa para instancia GameObject
 player_Obj = None
 alien_Objs = [] #-> Array de instancias Nave para aliens
 laser_gameobject = []
@@ -38,32 +46,9 @@ laser_Obj = []
 player_score = 0
 
 #!-----Funciones de dibujo-----
-#Alien
-def draw_aliens():
-    #TODO Different aliens and stuff zamn
-    for i in range(len(alien_Objs)):
-        alien_gameObj = alien_Objs[i]
-        x,y = alien_gameObj.get_position()
-        w,h = alien_gameObj.get_size()
-        pin_x_start, pin_x_end = (0,1)
-        glBindTexture(GL_TEXTURE_2D, alien_gameObj.get_frame_to_draw())
-        glBegin(GL_POLYGON)
-        glTexCoord2f(pin_x_start,0)
-        glVertex2d(x,y)
-        glTexCoord2f(pin_x_end,0)
-        glVertex2d(x+w,y)
-        glTexCoord2f(pin_x_end,1)
-        glVertex2d(x+w,y+h)
-        glTexCoord2f(pin_x_start,1)
-        glVertex2d(x,y+h)
-        glEnd()
-
-#Dibujar Nave
-def draw_nave():
-    x,y = player_Obj.get_position()
-    w,h = player_Obj.get_size()
-    pin_x_start, pin_x_end = (0,1) # Posiblemente lo quite xd
-    glBindTexture(GL_TEXTURE_2D, player_Obj.get_frame_to_draw()) #Apartir de aqui dibujamos al mario
+def draw_texture(x,y,w,h,frame_to_draw=0): #-> Se usa para dibujar una textura con glBindTexture()
+    pin_x_start, pin_x_end = (0,1)
+    glBindTexture(GL_TEXTURE_2D, frame_to_draw)
     glBegin(GL_POLYGON)
     glTexCoord2f(pin_x_start,0)
     glVertex2d(x,y)
@@ -75,6 +60,74 @@ def draw_nave():
     glVertex2d(x,y+h)
     glEnd()
 
+#Menu
+def load_menu():
+    global  min_blue_1, min_blue_2
+    x,y = menu_pug.get_position()
+    w,h = menu_pug.get_size()
+    color_increment = 1/255
+    glBindTexture(GL_TEXTURE_2D, 0) #! Importante: si dejamos la textura en 0, podemos dibujar tambien
+    #:-----Cuadrilatero degradado
+    glBegin(GL_QUADS)
+    glColor3f(color_1[0], color_1[1], color_1[2])
+    glVertex2d(50,50)
+    glColor3f(color_1[0], color_1[1], color_1[2])
+    glVertex2d(50,screenHeight-50)
+    glColor3f(color_2[0], color_2[1], color_2[2])
+    glVertex2d(screenWidth-50,screenHeight-50)
+    glColor3f(color_2[0], color_2[1], color_2[2])
+    glVertex2d(screenWidth-50,50)
+    glEnd()
+    glColor3f(1,1,1)
+
+    if min_blue_1:
+        if color_1[2] < .90:
+            color_1[0] += 0.5/255
+            color_1[2] += color_increment
+        else: 
+            min_blue_1 = False
+    else: 
+        if color_1[2] >= 74/255:
+            color_1[0] -= 0.5/255
+            color_1[2] -= color_increment
+        else: 
+            min_blue_1 = True
+    
+    if min_blue_2:
+        if color_2[2] < .70:
+            color_2[0] += color_increment
+            color_2[2] += color_increment
+        else: 
+            min_blue_2 = False
+    else: 
+        if color_2[2] >= 61/255:
+            color_2[0] -= color_increment
+            color_2[2] -= color_increment
+        else: 
+            min_blue_2 = True
+    #:-----
+
+    #TODO Texto de inicio
+
+    draw_texture(x,y,w,h,menu_pug.get_frame_to_draw())
+    
+
+#Alien
+def draw_aliens():
+    #TODO Different aliens and stuff zamn
+    for i in range(len(alien_Objs)):
+        alien_gameObj = alien_Objs[i]
+        x,y = alien_gameObj.get_position()
+        w,h = alien_gameObj.get_size()
+        draw_texture(x,y,w,h,alien_gameObj.get_frame_to_draw())
+        
+#Dibujar Nave
+def draw_nave():
+    x,y = player_Obj.get_position()
+    w,h = player_Obj.get_size()
+    draw_texture(x,y,w,h,player_Obj.get_frame_to_draw())
+
+#TODO Averiguar como disparar el laser desde la clase de Nave
 def draw_laser():
     global laser_Obj    
     for i in range(len(laser_Obj)):
@@ -107,9 +160,10 @@ def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
         glVertex2d(x, y)
     glEnd()
     
+#!-----Eventos de teclado------
 
 def keyPressed ( key, x, y ):
-    global flag_left, flag_down, flag_right, flag_up
+    global flag_left, flag_down, flag_right, flag_up, flag_enter
     if key == b'\x1b':
         glutLeaveMainLoop() 
     if key == b'w':
@@ -120,6 +174,8 @@ def keyPressed ( key, x, y ):
         flag_left = True
     if key == b'd':
         flag_right = True
+    if key == b'\x0D':
+        flag_enter = True
 
 def keyUp( key, x, y ):
     global flag_left, flag_down, flag_right, flag_up
@@ -151,14 +207,17 @@ def reshape(width, height):
     glMatrixMode ( GL_MODELVIEW )
     glLoadIdentity()
 
-def display():
+def display(): 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )
     glMatrixMode ( GL_MODELVIEW )
     glLoadIdentity()
 
     #!---------------------DIBUJAR AQUI------------------------#
-    draw_nave()
-    draw_aliens()
+    if not flag_enter:
+        load_menu()
+    else:
+        draw_nave()
+        draw_aliens()
     #TODO Workout laser shooting
     draw_laser()
     #!---------------------------------------------------------#
@@ -169,7 +228,7 @@ def animate():
     temp =0  #Si cualquiera de estas funciones se activa pedimos al glut que "se actualice"
 
 
-#!-----Timers-------
+#!-----Timers-------    
 def timer_move_nave(value):
     global PLAYER_IDLE, PLAYER_RUN
     state = player_Obj.get_state()
@@ -224,6 +283,7 @@ def timer_create_alien(value):
 #!----Main function-----
 
 def main():
+    global menu_pug
     global player_Obj, player_textures
     global alien_textures_type1, alien_textures_type2, alien_textures_type3, alien_textures_special
     global laser_textures
@@ -242,6 +302,10 @@ def main():
     init()
 
     #-> Carga de Recursos
+    ##: Texturas de menu
+    menu_pug_textures.append([loadTexture('./Resources/perro.png')])
+    menu_pug = GameObject((screenWidth+100)-(screenWidth/2),-50,screenWidth/2,screenHeight-100,menu_pug_textures)
+
     ##: Texturas de jugador
     player_textures.append([loadTexture('./Resources/naveinput.png')])
     player_textures.append([loadTexture('./Resources/nave3.png'),loadTexture('./Resources/nave2.png'),loadTexture('./Resources/nave.png')])
