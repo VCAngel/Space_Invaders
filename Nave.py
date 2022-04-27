@@ -35,6 +35,20 @@ alien_Objs = [] #-> Array de instancias Nave para aliens
 player_score = 0
 
 #!-----Funciones de dibujo-----
+def draw_texture(x,y,w,h,frame_to_draw=0): #-> Se usa para dibujar una textura con glBindTexture()
+    pin_x_start, pin_x_end = (0,1)
+    glBindTexture(GL_TEXTURE_2D, frame_to_draw)
+    glBegin(GL_POLYGON)
+    glTexCoord2f(pin_x_start,0)
+    glVertex2d(x,y)
+    glTexCoord2f(pin_x_end,0)
+    glVertex2d(x+w,y)
+    glTexCoord2f(pin_x_end,1)
+    glVertex2d(x+w,y+h)
+    glTexCoord2f(pin_x_start,1)
+    glVertex2d(x,y+h)
+    glEnd()
+
 #Alien
 def draw_aliens():
     #TODO Different aliens and stuff zamn
@@ -42,52 +56,20 @@ def draw_aliens():
         alien_gameObj = alien_Objs[i]
         x,y = alien_gameObj.get_position()
         w,h = alien_gameObj.get_size()
-        pin_x_start, pin_x_end = (0,1)
-        glBindTexture(GL_TEXTURE_2D, alien_gameObj.get_frame_to_draw())
-        glBegin(GL_POLYGON)
-        glTexCoord2f(pin_x_start,0)
-        glVertex2d(x,y)
-        glTexCoord2f(pin_x_end,0)
-        glVertex2d(x+w,y)
-        glTexCoord2f(pin_x_end,1)
-        glVertex2d(x+w,y+h)
-        glTexCoord2f(pin_x_start,1)
-        glVertex2d(x,y+h)
-        glEnd()
-
+        draw_texture(x,y,w,h,alien_gameObj.get_frame_to_draw())
+        
 #Dibujar Nave
 def draw_nave():
     x,y = player_Obj.get_position()
     w,h = player_Obj.get_size()
-    pin_x_start, pin_x_end = (0,1) # Posiblemente lo quite xd
-    glBindTexture(GL_TEXTURE_2D, player_Obj.get_frame_to_draw()) #Apartir de aqui dibujamos al mario
-    glBegin(GL_POLYGON)
-    glTexCoord2f(pin_x_start,0)
-    glVertex2d(x,y)
-    glTexCoord2f(pin_x_end,0)
-    glVertex2d(x+w,y)
-    glTexCoord2f(pin_x_end,1)
-    glVertex2d(x+w,y+h)
-    glTexCoord2f(pin_x_start,1)
-    glVertex2d(x,y+h)
-    glEnd()
+    draw_texture(x,y,w,h,player_Obj.get_frame_to_draw())
 
+#TODO Averiguar como disparar el laser desde la clase de Nave
 def draw_laser():
     global laser_gameobject
     x,y = laser_gameobject.get_position()
     w,h = laser_gameobject.get_size()
-    pin_x_start, pin_x_end = (0,1)
-    glBindTexture(GL_TEXTURE_2D, laser_gameobject.get_frame_to_draw()) #Apartir de aqui dibujamos al mario
-    glBegin(GL_POLYGON)
-    glTexCoord2f(pin_x_start,0)
-    glVertex2d(x,y)
-    glTexCoord2f(pin_x_end,0)
-    glVertex2d(x+w,y)
-    glTexCoord2f(pin_x_end,1)
-    glVertex2d(x+w,y+h)
-    glTexCoord2f(pin_x_start,1)
-    glVertex2d(x,y+h)
-    glEnd()
+    draw_texture(x,y,w,h,laser_gameobject.get_frame_to_draw())
     
 
 def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
