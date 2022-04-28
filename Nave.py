@@ -3,8 +3,7 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from modules.textures import loadTexture
 from modules.gameobject import GameObject
-from modules.nave import Nave
-from modules.nave import Laser
+from modules.nave import *
 import numpy as np
 import random
 
@@ -33,18 +32,20 @@ alien_textures_type2 = []
 alien_textures_type3 = []
 alien_textures_special = []
 laser_textures = []
+background_textures = []
 PLAYER_IDLE = 0
 PLAYER_RUN = 1
 
 ## Elementos de juego
 menu_pug = None #-> Se usa para instancia GameObject
 menu_text = None
+background_Obj = None
 player_Obj = None
 alien_Objs = [] #-> Array de instancias Nave para aliens
 laser_Objs = []
 
 # Puntuación de jugador
-player_score = 0
+player_score = 1000
 lvl_2_locked = True
 lvl_3_locked = True
 
@@ -71,8 +72,9 @@ def load_menu():
     text_x,text_y = menu_text.get_position()
     text_w,text_h = menu_text.get_size()
     color_increment = 1/255
-    glBindTexture(GL_TEXTURE_2D, 0) #! Importante: si dejamos la textura en 0, podemos dibujar tambien
+    
     #:-----Cuadrilatero degradado
+    glBindTexture(GL_TEXTURE_2D, 0) #! Importante: si dejamos la textura en 0, podemos dibujar tambien
     glBegin(GL_QUADS)
     glColor3f(color_1[0], color_1[1], color_1[2])
     glVertex2d(50,50)
@@ -140,6 +142,11 @@ def draw_laser():
         w,h = laser_gameObj.get_size()
         draw_texture(x,y,w,h,laser_gameObj.get_frame_to_draw())
         laser_gameObj.move_laser(1)
+
+def draw_background():
+    x,y = background_Obj.get_position()
+    w,h = background_Obj.get_size()
+    draw_texture(x,y,w,h,background_Obj.get_frame_to_draw())
     
 
 def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
@@ -247,6 +254,7 @@ def display():
     if not flag_enter:
         load_menu()
     else:
+        draw_background()
         draw_laser()
         draw_nave()
         draw_aliens()
@@ -322,7 +330,7 @@ def timer_create_lvl_2(value):
 def timer_create_lvl_3(value):
     global alien_Objs
     coords = [random.randint(0,screenWidth-50), screenHeight+80]
-    alien_Objs.append(Nave(coords,2,1000, alien_textures_type3,False))
+    alien_Objs.append(Nave(coords,3,1000, alien_textures_type3,False))
 
     glutPostRedisplay()
     glutTimerFunc (7000, timer_create_lvl_3,1)
@@ -358,6 +366,7 @@ def timer_laser (value):
 
 def main():
     global menu_pug, menu_text
+    global background_Obj
     global player_Obj, player_textures
     global alien_textures_type1, alien_textures_type2, alien_textures_type3, alien_textures_special
     global laser_textures
@@ -394,6 +403,10 @@ def main():
 
     ##: Texturas de laser
     laser_textures.append([loadTexture('./Resources/gataliens/lazerred.png')])
+
+    ##: Imagen de fondo
+    background_textures.append([loadTexture('./Resources/fondo.png')])
+    background_Obj = GameObject(0, 0, screenWidth, screenHeight*3, background_textures)
 
     #-> Timers
     timer_move_nave(0)
