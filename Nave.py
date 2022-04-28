@@ -85,7 +85,6 @@ def play_fondo3():
     playsound('Resources/Tema3.mp3')
 
 
-
 #!-----Funciones de dibujo-----
 def draw_texture(x,y,w,h,frame_to_draw=0): #-> Se usa para dibujar una textura con glBindTexture()
     pin_x_start, pin_x_end = (0,1)
@@ -111,7 +110,7 @@ def load_menu():
     color_increment = 1/255
     
     #:-----Cuadrilatero degradado
-    glBindTexture(GL_TEXTURE_2D, 0) #! Importante: si dejamos la textura en 0, podemos dibujar tambien
+    glBindTexture(GL_TEXTURE_2D, 0)
     glBegin(GL_QUADS)
     glColor3f(color_1[0], color_1[1], color_1[2])
     glVertex2d(50,50)
