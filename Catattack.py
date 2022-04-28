@@ -58,7 +58,7 @@ laser_ObjsA = []
 alien_gameObj = []
 
 # Puntuación de jugador
-player_score = 900
+player_score = 100
 lvl_2_locked = True
 lvl_3_locked = True
 
