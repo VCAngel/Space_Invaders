@@ -33,6 +33,7 @@ alien_textures_type2 = []
 alien_textures_type3 = []
 alien_textures_special = []
 laser_textures = []
+laser_textures_type1 = []
 PLAYER_IDLE = 0
 PLAYER_RUN = 1
 
@@ -42,6 +43,8 @@ menu_text = None
 player_Obj = None
 alien_Objs = [] #-> Array de instancias Nave para aliens
 laser_Objs = []
+laser_ObjsA = []
+alien_gameObj = []
 
 # Puntuación de jugador
 player_score = 0
@@ -133,13 +136,21 @@ def draw_nave():
     draw_texture(x,y,w,h,player_Obj.get_frame_to_draw())
 
 def draw_laser():
-    global laser_Objs    
+    global laser_Objs, laser_ObjsA   
     for i in range(len(laser_Objs)):
         laser_gameObj = laser_Objs[i]
         x,y = laser_gameObj.get_position()
         w,h = laser_gameObj.get_size()
         draw_texture(x,y,w,h,laser_gameObj.get_frame_to_draw())
         laser_gameObj.move_laser(1)
+
+    for i in range(len(laser_ObjsA)):
+        laser_gameObjA = laser_ObjsA[i]
+        x,y = laser_gameObjA.get_position()
+        w,h = laser_gameObjA.get_size()
+        draw_texture(x,y,w,h,laser_gameObjA.get_frame_to_draw())
+        laser_gameObjA.laser_alien()
+
     
 
 def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
@@ -336,6 +347,16 @@ def timer_move_alien(value):
     object_out_of_bounds(alien_Objs)
     glutTimerFunc (20, timer_move_alien, 1)
 
+def timer_laserAlien(value):
+    global laser_ObjsA
+    for alien in alien_Objs:
+        x,y = alien.get_position()
+        laser_ObjsA.append(Laser([x,y],1,laser_textures_type1))
+
+    for laser in laser_ObjsA:
+        laser.laser_alien()
+    glutTimerFunc (2000, timer_laserAlien, 1)
+
 def timer_laser (value):
     global laser_Objs
     if flag_enter:
@@ -361,6 +382,8 @@ def main():
     global player_Obj, player_textures
     global alien_textures_type1, alien_textures_type2, alien_textures_type3, alien_textures_special
     global laser_textures
+    global laser_textures_type1
+    
 
     glutInit ()
     glutInitDisplayMode ( GLUT_RGBA )
@@ -394,6 +417,7 @@ def main():
 
     ##: Texturas de laser
     laser_textures.append([loadTexture('./Resources/gataliens/lazerred.png')])
+    laser_textures_type1.append([loadTexture('./Resources/gataliens/lazeralien.png')])
 
     #-> Timers
     timer_move_nave(0)
@@ -401,6 +425,7 @@ def main():
     timer_create_lvl_1(0)
     timer_move_alien(0)
     timer_laser(0)
+    timer_laserAlien(0)
 
     glutMainLoop()
 
