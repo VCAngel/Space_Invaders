@@ -126,7 +126,6 @@ def load_menu():
 
 #Alien
 def draw_aliens():
-    #TODO Different aliens and stuff zamn
     for i in range(len(alien_Objs)):
         alien_gameObj = alien_Objs[i]
         x,y = alien_gameObj.get_position()
@@ -172,7 +171,6 @@ def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
     glEnd()
     
 #!-----Colisiones|Limites-----
-#TODO Colisiones para laseres, quitar vida, etc.
 def player_collision(): 
     global alien_Objs
     for i in range(len(alien_Objs)):
@@ -195,6 +193,20 @@ def player_laser_collision():
                 laser_Objs.pop(j)
                 return
 
+def alien_laser_collision():
+    global player_Obj, laser_ObjsA
+    for i in range(len(laser_ObjsA)):
+        if laser_ObjsA[i].is_collision(player_Obj):
+
+            player_Obj.decrease_hp(laser_ObjsA[i].get_base_dmg())
+            if player_Obj.get_hp() <= 0:
+                #TODO Perdiste screen``
+                print('PERDISTE!')
+
+            laser_ObjsA.pop(i)
+            return
+
+
 def object_out_of_bounds(gameObjectArray = []):
     for i in range(len(gameObjectArray)):
         x,y = gameObjectArray[i].get_position()
@@ -206,8 +218,6 @@ def object_out_of_bounds(gameObjectArray = []):
         if y <= -25:
             gameObjectArray.pop(i)
             return
-
-# TODO Colisiones de aliens hacia jugador
 
 #!-----Eventos de teclado------
 
@@ -297,8 +307,11 @@ def timer_move_nave(value):
 
         player_Obj.move(input, screenWidth)
     
+    print(player_Obj.get_hp())
+
     player_collision()
     player_laser_collision()
+    alien_laser_collision()
     glutPostRedisplay()
     glutTimerFunc(20, timer_move_nave, 1)
 
@@ -368,9 +381,9 @@ def timer_laserAlien(value):
         if alien.get_laser_type() == 1:
             laser_ObjsA.append(Laser([x,y],1,laser_textures_type1))
         elif alien.get_laser_type() == 2:
-            laser_ObjsA.append(Laser([x,y],1,laser_textures_type2))
+            laser_ObjsA.append(Laser([x,y],2,laser_textures_type2))
         elif alien.get_laser_type() == 3:
-            laser_ObjsA.append(Laser([x,y],1,laser_textures_type3))
+            laser_ObjsA.append(Laser([x,y],3,laser_textures_type3))
 
     for laser in laser_ObjsA:
         laser.laser_alien()
