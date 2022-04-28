@@ -51,7 +51,7 @@ laser_ObjsA = []
 alien_gameObj = []
 
 # Puntuación de jugador
-player_score = 1000
+player_score = 0
 lvl_2_locked = True
 lvl_3_locked = True
 
@@ -189,12 +189,20 @@ def player_collision():
 
 def player_laser_collision():
     global alien_Objs, laser_Objs
+    global player_score
     for i in range(len(alien_Objs)):
         for j in range(len(laser_Objs)):
             if laser_Objs[j].is_collision(alien_Objs[i]):
 
                 alien_Objs[i].decrease_hp(laser_Objs[j].get_base_dmg())
                 if alien_Objs[i].get_hp() <= 0:
+                    if alien_Objs[i].get_laser_type() == 1:
+                        player_score += 10
+                    if alien_Objs[i].get_laser_type() == 2:
+                        player_score += 20
+                    if alien_Objs[i].get_laser_type() == 3:
+                        player_score += 30
+
                     alien_Objs.pop(i)
 
                 laser_Objs.pop(j)
@@ -207,8 +215,11 @@ def alien_laser_collision():
 
             player_Obj.decrease_hp(laser_ObjsA[i].get_base_dmg())
             if player_Obj.get_hp() <= 0:
-                #TODO Perdiste screen``
-                print('PERDISTE!')
+                #!-----Game Over-----
+                print("Perdiste! Gracias por jugar :)")
+                print("Puntuación:", player_score)
+                glutLeaveMainLoop()
+                return
 
             laser_ObjsA.pop(i)
             print('Vida actual: ', player_Obj.get_hp())
@@ -216,6 +227,7 @@ def alien_laser_collision():
 
 
 def object_out_of_bounds(gameObjectArray = []):
+    global player_score
     for i in range(len(gameObjectArray)):
         x,y = gameObjectArray[i].get_position()
         if y > screenHeight:
@@ -224,6 +236,14 @@ def object_out_of_bounds(gameObjectArray = []):
                 return
         
         if y <= -25:
+            if isinstance(gameObjectArray[i], Nave):
+                if gameObjectArray[i].get_laser_type() == 1:
+                    player_score -= 30
+                if gameObjectArray[i].get_laser_type() == 2:
+                    player_score -= 50
+                if gameObjectArray[i].get_laser_type() == 3:
+                    player_score -= 100
+
             gameObjectArray.pop(i)
             return
 
@@ -296,6 +316,14 @@ def animate():
 
 
 #!-----Timers-------    
+def timer_score(value):
+    global player_score
+    if flag_enter:
+        player_score += 5
+        print(player_score)
+
+    glutTimerFunc(1000,timer_score,1)
+
 def timer_move_nave(value):
     if flag_enter:
         global PLAYER_IDLE, PLAYER_RUN
@@ -402,10 +430,9 @@ def timer_animate_alien(value):
 
     for alien in alien_Objs:
         alien.animate()
-        print(alien.get_state())
 
     glutPostRedisplay()
-    glutTimerFunc(100, timer_animate_alien, 1)
+    glutTimerFunc(500, timer_animate_alien, 1)
 
 def timer_laser (value):
     global laser_Objs
@@ -491,6 +518,7 @@ def main():
     background_Obj_2 = GameObject(0, screenHeight*3, screenWidth, screenHeight*3, background_textures)
 
     #-> Timers
+    timer_score(0)
     timer_move_background(0)
     timer_move_nave(0)
     timer_animate_nave(0)
