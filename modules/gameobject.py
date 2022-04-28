@@ -19,6 +19,13 @@ class GameObject:
         self.__size['y'] = h
         self.animator = frames
 
+    def is_collision(self,obj):
+        if not isinstance(obj, GameObject):
+            raise Exception('La función requiere un GameObject')
+        col_x = self.__position['x'] < obj.__position['x'] + obj.__size['x'] and self.__position['x'] + self.__size['x'] > obj.__position['x']
+        col_y = self.__position['y'] < obj.__position['y'] + obj.__size['y'] and self.__position['y'] + self.__size['y'] > obj.__position['y']
+        return col_x and col_y
+
     def move_laser(self, input):
         if input == 1:
             self.__velocity['y'] = self.__position['y'] + 1
@@ -30,7 +37,7 @@ class GameObject:
         self.__last_position['y'] = self.__position['y']
         self.__position['y'] += self.__velocity['y']
 
-    def move(self, input):
+    def move(self, input, screenWidth):
         if input == 0:
             if self.__velocity['x'] != 0:
                 self.__velocity['x'] -= 0.5*self.__velocity['x']
@@ -47,6 +54,31 @@ class GameObject:
 
         self.__last_position['x'] = self.__position['x']
         self.__position['x'] += self.__velocity['x']
+
+        if self.__position['x'] + self.__size['x'] > screenWidth:
+            self.__position['x'] = screenWidth - self.__size['x']
+            self.__velocity['x'] *= 0
+        if self.__position['x']  < 0:
+            self.__position['x'] = 0
+            self.__velocity['x'] *= 0
+
+    def alien_move(self):  #Movimiento vertical de los aliens
+        if self.__velocity['y'] == 0:
+            self.__velocity['y'] = -1
+        
+        self.__position['y'] += self.__velocity['y']
+
+    def laser_alien(self):
+        if self.__velocity['y'] == 0:
+            self.__velocity['y'] = -5
+        
+        self.__position['y'] += self.__velocity['y']
+        
+        # #Ver si colisiona con la nave
+        # for alien in aliens:
+        #     if self.is_collision(alien):
+        #         self.__position['x'] -= self.__velocity['x']
+        #         self.__velocity['x'] *= -1
 
     def change_state(self,index):
         if index >= len(self.animator):
