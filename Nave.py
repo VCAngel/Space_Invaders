@@ -1,3 +1,4 @@
+from concurrent.futures import thread
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
@@ -6,6 +7,8 @@ from modules.gameobject import GameObject
 from modules.nave import *
 import numpy as np
 import random
+from playsound import playsound 
+from threading import Thread
 
 #!-----Variables importantes-----
 ## Ventana
@@ -51,9 +54,24 @@ laser_ObjsA = []
 alien_gameObj = []
 
 # Puntuación de jugador
-player_score = 0
+player_score = 20000
 lvl_2_locked = True
 lvl_3_locked = True
+
+#!-----Funciones de sonido-----
+def play_nave():
+    playsound('Resources/Nave.wav')
+
+def play_alien1():
+    playsound('Resources/AlienType1.wav')
+
+def play_alien2():
+    playsound('Resources/AlienType2.wav')
+
+def play_alien3():
+    playsound('Resources/AlienType3.wav')
+
+
 
 #!-----Funciones de dibujo-----
 def draw_texture(x,y,w,h,frame_to_draw=0): #-> Se usa para dibujar una textura con glBindTexture()
@@ -345,11 +363,15 @@ def timer_move_nave(value):
         if flag_right: 
             input = 1
             if state != PLAYER_RUN:
-                player_Obj.change_state(PLAYER_RUN)     
+                player_Obj.change_state(PLAYER_RUN) 
+                thread_nave = Thread(target=play_nave)
+                thread_nave.start()
         elif flag_left:
             input = -1
             if state != PLAYER_RUN:
                 player_Obj.change_state(PLAYER_RUN)
+                thread_nave = Thread(target=play_nave)
+                thread_nave.start()
         else: 
             if state != PLAYER_IDLE:
                 player_Obj.change_state(PLAYER_IDLE)
@@ -427,10 +449,16 @@ def timer_laserAlien(value):
         x,y = alien.get_position()
         if alien.get_laser_type() == 1:
             laser_ObjsA.append(Laser([x,y],1,laser_textures_type1))
+            thread_nave = Thread(target=play_alien1)
+            thread_nave.start()
         elif alien.get_laser_type() == 2:
             laser_ObjsA.append(Laser([x,y],2,laser_textures_type2))
+            thread_nave = Thread(target=play_alien2)
+            thread_nave.start()
         elif alien.get_laser_type() == 3:
             laser_ObjsA.append(Laser([x,y],3,laser_textures_type3))
+            thread_nave = Thread(target=play_alien3)
+            thread_nave.start()
 
     for laser in laser_ObjsA:
         laser.laser_alien()
