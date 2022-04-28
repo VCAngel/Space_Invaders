@@ -33,6 +33,9 @@ alien_textures_type3 = []
 alien_textures_special = []
 laser_textures = []
 background_textures = []
+laser_textures_type1 = []
+laser_textures_type2 = []
+laser_textures_type3 = []
 PLAYER_IDLE = 0
 PLAYER_RUN = 1
 
@@ -43,6 +46,8 @@ background_Obj = None
 player_Obj = None
 alien_Objs = [] #-> Array de instancias Nave para aliens
 laser_Objs = []
+laser_ObjsA = []
+alien_gameObj = []
 
 # Puntuación de jugador
 player_score = 1000
@@ -135,19 +140,25 @@ def draw_nave():
     draw_texture(x,y,w,h,player_Obj.get_frame_to_draw())
 
 def draw_laser():
-    global laser_Objs    
+    global laser_Objs, laser_ObjsA   
     for i in range(len(laser_Objs)):
         laser_gameObj = laser_Objs[i]
         x,y = laser_gameObj.get_position()
         w,h = laser_gameObj.get_size()
         draw_texture(x,y,w,h,laser_gameObj.get_frame_to_draw())
         laser_gameObj.move_laser(1)
+    
+    for i in range(len(laser_ObjsA)):
+        laser_gameObjA = laser_ObjsA[i]
+        x,y = laser_gameObjA.get_position()
+        w,h = laser_gameObjA.get_size()
+        draw_texture(x,y,w,h,laser_gameObjA.get_frame_to_draw())
+        laser_gameObjA.laser_alien()
 
 def draw_background():
     x,y = background_Obj.get_position()
     w,h = background_Obj.get_size()
     draw_texture(x,y,w,h,background_Obj.get_frame_to_draw())
-    
 
 def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
     PI = 3.141592
@@ -304,14 +315,16 @@ def timer_create_lvl_1(value):
     if flag_enter:
         global alien_Objs
         coords = [random.randint(0,screenWidth-50), screenHeight+80]
-        alien_Objs.append(Nave(coords,1,500,alien_textures_type1, False))
+        alien_type_1 = Nave(coords,1,500,alien_textures_type1, False)
+        alien_type_1.set_laser_type(1)
+        alien_Objs.append(alien_type_1)
 
-        #TODO if score >= 250: correr lvl 2 aliens timer
+        #-> Desloquea nivel 2
         if player_score >= 250 and lvl_2_locked:
             lvl_2_locked = False
             timer_create_lvl_2(0)
 
-        #TODO if score >= 1000: correr lvl 3 aliens timer
+        #-> Desloquea nivel 3
         if player_score >= 1000 and lvl_3_locked:
             lvl_3_locked = False
             timer_create_lvl_3(0)
@@ -322,7 +335,9 @@ def timer_create_lvl_1(value):
 def timer_create_lvl_2(value):
     global alien_Objs
     coords = [random.randint(0,screenWidth-50), screenHeight+80]
-    alien_Objs.append(Nave(coords,2,333, alien_textures_type2,False))
+    alien_type_2 = Nave(coords,2,333, alien_textures_type2,False)
+    alien_type_2.set_laser_type(2)
+    alien_Objs.append(alien_type_2)
 
     glutPostRedisplay()
     glutTimerFunc (5000, timer_create_lvl_2,1)
@@ -330,7 +345,9 @@ def timer_create_lvl_2(value):
 def timer_create_lvl_3(value):
     global alien_Objs
     coords = [random.randint(0,screenWidth-50), screenHeight+80]
-    alien_Objs.append(Nave(coords,3,1000, alien_textures_type3,False))
+    alien_type_3 = Nave(coords,3,1000, alien_textures_type3,False)
+    alien_type_3.set_laser_type(3)
+    alien_Objs.append(alien_type_3)
 
     glutPostRedisplay()
     glutTimerFunc (7000, timer_create_lvl_3,1)
@@ -343,6 +360,23 @@ def timer_move_alien(value):
         
     object_out_of_bounds(alien_Objs)
     glutTimerFunc (20, timer_move_alien, 1)
+
+def timer_laserAlien(value):
+    global laser_ObjsA
+    for alien in alien_Objs:
+        x,y = alien.get_position()
+        if alien.get_laser_type() == 1:
+            laser_ObjsA.append(Laser([x,y],1,laser_textures_type1))
+        elif alien.get_laser_type() == 2:
+            laser_ObjsA.append(Laser([x,y],1,laser_textures_type2))
+        elif alien.get_laser_type() == 3:
+            laser_ObjsA.append(Laser([x,y],1,laser_textures_type3))
+
+    for laser in laser_ObjsA:
+        laser.laser_alien()
+    
+    object_out_of_bounds(laser_ObjsA)
+    glutTimerFunc (2000, timer_laserAlien, 1)
 
 def timer_laser (value):
     global laser_Objs
@@ -370,6 +404,8 @@ def main():
     global player_Obj, player_textures
     global alien_textures_type1, alien_textures_type2, alien_textures_type3, alien_textures_special
     global laser_textures
+    global laser_textures_type1
+    
 
     glutInit ()
     glutInitDisplayMode ( GLUT_RGBA )
@@ -403,6 +439,9 @@ def main():
 
     ##: Texturas de laser
     laser_textures.append([loadTexture('./Resources/gataliens/lazerred.png')])
+    laser_textures_type1.append([loadTexture('./Resources/gataliens/lazeralien.png')])
+    laser_textures_type2.append([loadTexture('./Resources/gataliens/lazerblue.png')])
+    laser_textures_type3.append([loadTexture('./Resources/gataliens/lazeryellow.png')])
 
     ##: Imagen de fondo
     background_textures.append([loadTexture('./Resources/fondo.png')])
@@ -414,6 +453,7 @@ def main():
     timer_create_lvl_1(0)
     timer_move_alien(0)
     timer_laser(0)
+    timer_laserAlien(0)
 
     glutMainLoop()
 

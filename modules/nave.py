@@ -22,6 +22,7 @@ class Nave(GameObject):
         self.__hp = hp
         self.__laser_timer = laser_timer
         self.__laser_textures = None
+        self.__laser_type = 0
 
     def get_hp(self):
         return self.__hp
@@ -35,16 +36,11 @@ class Nave(GameObject):
     def set_laser_timer(self, laser_timer):
         self.__laser_timer = laser_timer
 
-    def set_laser_texture(self, textures=[]): #quitar
-        self.__laser_textures = textures
+    def set_laser_type(self, type = 0):
+        self.__laser_type = type
 
-    def shoot_laser(self):
-        laser_Obj = None
-        if self.__is_player:
-            laser_Obj = Laser(self.get_position(), 1, self.__laser_textures) #quitar
-            laser_Obj.move_laser(1)
-
-        # TODO create laser gameobj logic
+    def get_laser_type(self):
+        return self.__laser_type
 
 
 class Laser(GameObject):

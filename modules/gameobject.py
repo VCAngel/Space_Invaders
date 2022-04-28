@@ -68,6 +68,12 @@ class GameObject:
         
         self.__position['y'] += self.__velocity['y']
 
+    def laser_alien(self):
+        if self.__velocity['y'] == 0:
+            self.__velocity['y'] = -5
+        
+        self.__position['y'] += self.__velocity['y']
+        
         # #Ver si colisiona con la nave
         # for alien in aliens:
         #     if self.is_collision(alien):
