@@ -21,6 +21,9 @@ flag_up = False
 flag_down = False
 flag_enter = False
 
+#sonido
+flag_sound = 0
+
 ## Menu assets
 menu_pug_textures = []
 menu_text_img = []
@@ -54,9 +57,10 @@ laser_ObjsA = []
 alien_gameObj = []
 
 # Puntuación de jugador
-player_score = 20000
+player_score = 900
 lvl_2_locked = True
 lvl_3_locked = True
+
 
 #!-----Funciones de sonido-----
 def play_nave():
@@ -70,6 +74,15 @@ def play_alien2():
 
 def play_alien3():
     playsound('Resources/AlienType3.wav')
+
+def play_fondo1():
+    playsound('Resources/Tema1.mp3')
+
+def play_fondo2():
+    playsound('Resources/Tema2.mp3')
+
+def play_fondo3():
+    playsound('Resources/Tema3.mp3')
 
 
 
@@ -400,7 +413,7 @@ def timer_create_lvl_1(value):
         alien_type_1 = Nave(coords,1,500,alien_textures_type1, False)
         alien_type_1.set_laser_type(1)
         alien_Objs.append(alien_type_1)
-
+        
         #-> Desloquea nivel 2
         if player_score >= 250 and lvl_2_locked:
             lvl_2_locked = False
@@ -410,7 +423,7 @@ def timer_create_lvl_1(value):
         if player_score >= 1000 and lvl_3_locked:
             lvl_3_locked = False
             timer_create_lvl_3(0)
-
+    
     glutPostRedisplay()
     glutTimerFunc (3000, timer_create_lvl_1,1)
 
@@ -515,6 +528,16 @@ def main():
     global alien_textures_type1, alien_textures_type2, alien_textures_type3, alien_textures_special
     global laser_textures
     global laser_textures_type1
+    if player_score <= 250: 
+        thread_tema = Thread(target=play_fondo1)
+        thread_tema.start()
+    elif player_score >= 251 and player_score < 1000:
+        thread_tema2 = Thread(target=play_fondo3)
+        thread_tema2.start()
+    elif player_score >= 1000:
+        thread_tema3 = Thread(target=play_fondo2)
+        thread_tema3.start()
+
     
 
     glutInit ()
@@ -572,4 +595,5 @@ def main():
     glutMainLoop()
 
 print("Presiona Escape para salir!")
+
 main()
