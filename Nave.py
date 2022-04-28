@@ -123,6 +123,8 @@ def load_menu():
 
     draw_texture(text_x,text_y,text_w,text_h,menu_text.get_frame_to_draw())
     draw_texture(pug_x,pug_y,pug_w,pug_h,menu_pug.get_frame_to_draw())
+
+    #TODO Poligono para lentes
     
 
 #Alien
@@ -163,6 +165,7 @@ def draw_background():
     draw_texture(x,y_2,w,h,background_Obj_2.get_frame_to_draw())
 
 def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
+    glBindTexture(GL_TEXTURE_2D, 0)
     PI = 3.141592
     angle = 2*PI/aristas
     glColor3f(rojo, verde, azul)
@@ -172,6 +175,7 @@ def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
         y = y1 + rad*np.sin(angle*i+(PI*rotacion))
         glVertex2d(x, y)
     glEnd()
+    glColor3f(1,1,1)
     
 #!-----Colisiones|Limites-----
 def player_collision(): 
@@ -180,7 +184,7 @@ def player_collision():
         if player_Obj.is_collision(alien_Objs[i]):
             alien_Objs.pop(i)
             player_Obj.decrease_hp(1)
-            # print(player_Obj.get_hp())
+            print('Vida actual: ', player_Obj.get_hp())
             return
 
 def player_laser_collision():
@@ -207,6 +211,7 @@ def alien_laser_collision():
                 print('PERDISTE!')
 
             laser_ObjsA.pop(i)
+            print('Vida actual: ', player_Obj.get_hp())
             return
 
 
@@ -310,8 +315,6 @@ def timer_move_nave(value):
 
         player_Obj.move(input, screenWidth)
     
-    print(player_Obj.get_hp())
-
     player_collision()
     player_laser_collision()
     alien_laser_collision()
@@ -323,7 +326,7 @@ def timer_animate_nave(value):
     global player_Obj
     player_Obj.animate()
     glutPostRedisplay()
-    glutTimerFunc(150, timer_animate_nave, 1)
+    glutTimerFunc(1000, timer_animate_nave, 1)
     
 
 def timer_create_lvl_1(value):
@@ -394,6 +397,16 @@ def timer_laserAlien(value):
     object_out_of_bounds(laser_ObjsA)
     glutTimerFunc (2000, timer_laserAlien, 1)
 
+def timer_animate_alien(value):
+    global alien_Objs
+
+    for alien in alien_Objs:
+        alien.animate()
+        print(alien.get_state())
+
+    glutPostRedisplay()
+    glutTimerFunc(100, timer_animate_alien, 1)
+
 def timer_laser (value):
     global laser_Objs
     if flag_enter:
@@ -459,12 +472,12 @@ def main():
     ##: Texturas de jugador
     player_textures.append([loadTexture('./Resources/naveinput.png')])
     player_textures.append([loadTexture('./Resources/nave3.png'),loadTexture('./Resources/nave2.png'),loadTexture('./Resources/nave.png')])
-    player_Obj = Nave([screenWidth/2,30], 50,500,player_textures, True)
+    player_Obj = Nave([screenWidth/2,30], 30,500,player_textures, True)
      
     ##: Texturas de aliens
-    alien_textures_type1.append([loadTexture('./Resources/gataliens/aliencat.png')])
-    alien_textures_type2.append([loadTexture('./Resources/gataliens/aliencatblue.png')])
-    alien_textures_type3.append([loadTexture('./Resources/gataliens/aliencatyellow.png')])
+    alien_textures_type1.append([loadTexture('./Resources/gataliens/aliencat2.png'), loadTexture('./Resources/gataliens/aliencat.png')])
+    alien_textures_type2.append([loadTexture('./Resources/gataliens/aliencatblue2.png'), loadTexture('./Resources/gataliens/aliencatblue.png')])
+    alien_textures_type3.append([loadTexture('./Resources/gataliens/aliencatyellow2.png'), loadTexture('./Resources/gataliens/aliencatyellow.png')])
 
     ##: Texturas de laser
     laser_textures.append([loadTexture('./Resources/gataliens/lazerred.png')])
@@ -481,6 +494,7 @@ def main():
     timer_move_background(0)
     timer_move_nave(0)
     timer_animate_nave(0)
+    timer_animate_alien(0)
     timer_create_lvl_1(0)
     timer_move_alien(0)
     timer_laser(0)
