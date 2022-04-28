@@ -2,15 +2,16 @@ from concurrent.futures import thread
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
+from playsound import playsound 
+from threading import Thread
 from modules.textures import loadTexture
 from modules.gameobject import GameObject
 from modules.nave import *
+from modules.bezier import evaluate_bezier
 import numpy as np
 import random
-from playsound import playsound 
-from threading import Thread
 
-#!-----Variables importantes-----
+#!-----Variables importantes-----------------------------------------
 ## Ventana
 screenWidth, screenHeight = 1080,720 
 
@@ -62,30 +63,30 @@ lvl_2_locked = True
 lvl_3_locked = True
 
 
-#!-----Funciones de sonido-----
+#!-----Funciones de sonido----------------------------------------
 def play_nave():
-    playsound('Resources/Nave.wav')
+    playsound('Resources/audio/Nave.wav')
 
 def play_alien1():
-    playsound('Resources/AlienType1.wav')
+    playsound('Resources/audio/AlienType1.wav')
 
 def play_alien2():
-    playsound('Resources/AlienType2.wav')
+    playsound('Resources/audio/AlienType2.wav')
 
 def play_alien3():
-    playsound('Resources/AlienType3.wav')
+    playsound('Resources/audio/AlienType3.wav')
 
 def play_fondo1():
-    playsound('Resources/Tema1.mp3')
+    playsound('Resources/audio/Tema1.mp3')
 
 def play_fondo2():
-    playsound('Resources/Tema2.mp3')
+    playsound('Resources/audio/Tema2.mp3')
 
 def play_fondo3():
-    playsound('Resources/Tema3.mp3')
+    playsound('Resources/audio/Tema3.mp3')
 
 
-#!-----Funciones de dibujo-----
+#!-----Funciones de dibujo-------------------------------------------------
 def draw_texture(x,y,w,h,frame_to_draw=0): #-> Se usa para dibujar una textura con glBindTexture()
     pin_x_start, pin_x_end = (0,1)
     glBindTexture(GL_TEXTURE_2D, frame_to_draw)
@@ -154,7 +155,7 @@ def load_menu():
     draw_texture(text_x,text_y,text_w,text_h,menu_text.get_frame_to_draw())
     draw_texture(pug_x,pug_y,pug_w,pug_h,menu_pug.get_frame_to_draw())
 
-    #aristas, x, y , rad, r, g, b, rotacion
+    #: Lentes cool
     polygon(4,750,350,50,0,0,0,.25)
     polygon(4,780,350,50,0,0,0,.25)
     polygon(4,900,350,50,0,0,0,.25)
@@ -169,6 +170,13 @@ def load_menu():
     polygon(4,770,370,5,1,1,1,1)
     polygon(4,930,370,5,1,1,1,1)
     
+    #: Cejas bezier
+    x_1,y_1 = (520,380)
+    x_2,y_2 = (550,380)
+    ceja_1 = [[300+x_1,40+y_1],[300+x_1,25+y_1],[200+x_1,75+y_1],[100+x_1,50+y_1]]
+    ceja_2 = [[300+x_2,40+y_2],[300+x_2,25+y_2],[400+x_2,75+y_2],[500+x_2,50+y_2]]
+    bezier_curve(ceja_1, [0.8,0.8,0.8])
+    bezier_curve(ceja_2, [0.8,0.8,0.8])
 
 #Alien
 def draw_aliens():
@@ -219,8 +227,19 @@ def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
         glVertex2d(x, y)
     glEnd()
     glColor3f(1,1,1)
+
+def bezier_curve(points =[], RGB = []):
+    points = np.array(points)
+    paths = evaluate_bezier(points,50) #Obtener coordenadas de lineas
+    path_x, path_y = paths[:,0], paths[:,1]
+    glColor3f(RGB[0], RGB[1], RGB[2])
+    glBegin(GL_LINE_STRIP)
+    for i in range(len(path_x)-1):
+        glVertex2d(path_x[i], path_y[i])
+    glEnd()
+    glColor3f(1,1,1)
     
-#!-----Colisiones|Limites-----
+#!-----Colisiones|Limites-----------------------------------------------
 def player_collision(): 
     global alien_Objs
     for i in range(len(alien_Objs)):
@@ -290,7 +309,7 @@ def object_out_of_bounds(gameObjectArray = []):
             gameObjectArray.pop(i)
             return
 
-#!-----Eventos de teclado------
+#!-----Eventos de teclado---------------------------------------
 
 def keyPressed ( key, x, y ):
     global flag_left, flag_down, flag_right, flag_up, flag_enter
@@ -358,12 +377,12 @@ def animate():
     temp =0  #Si cualquiera de estas funciones se activa pedimos al glut que "se actualice"
 
 
-#!-----Timers-------    
+#!-----Timers--------------------------------------------------    
 def timer_score(value):
     global player_score
     if flag_enter:
         player_score += 5
-        print(player_score)
+        # print(player_score)
 
     glutTimerFunc(1000,timer_score,1)
 
@@ -409,7 +428,7 @@ def timer_create_lvl_1(value):
     if flag_enter:
         global alien_Objs
         coords = [random.randint(0,screenWidth-50), screenHeight+80]
-        alien_type_1 = Nave(coords,1,500,alien_textures_type1, False)
+        alien_type_1 = Nave(coords,1,alien_textures_type1, False)
         alien_type_1.set_laser_type(1)
         alien_Objs.append(alien_type_1)
         
@@ -429,7 +448,7 @@ def timer_create_lvl_1(value):
 def timer_create_lvl_2(value):
     global alien_Objs
     coords = [random.randint(0,screenWidth-50), screenHeight+80]
-    alien_type_2 = Nave(coords,2,333, alien_textures_type2,False)
+    alien_type_2 = Nave(coords,2, alien_textures_type2,False)
     alien_type_2.set_laser_type(2)
     alien_Objs.append(alien_type_2)
 
@@ -439,7 +458,7 @@ def timer_create_lvl_2(value):
 def timer_create_lvl_3(value):
     global alien_Objs
     coords = [random.randint(0,screenWidth-50), screenHeight+80]
-    alien_type_3 = Nave(coords,3,1000, alien_textures_type3,False)
+    alien_type_3 = Nave(coords,3, alien_textures_type3,False)
     alien_type_3.set_laser_type(3)
     alien_Objs.append(alien_type_3)
 
@@ -518,7 +537,7 @@ def timer_move_background(value):
     glutTimerFunc(50, timer_move_background, 1)
      
 
-#!----Main function-----
+#!----Main function-----------------------------------------------------
 
 def main():
     global menu_pug, menu_text
@@ -536,8 +555,6 @@ def main():
     elif player_score >= 1000:
         thread_tema3 = Thread(target=play_fondo2)
         thread_tema3.start()
-
-    
 
     glutInit ()
     glutInitDisplayMode ( GLUT_RGBA )
@@ -562,7 +579,7 @@ def main():
     ##: Texturas de jugador
     player_textures.append([loadTexture('./Resources/naveinput.png')])
     player_textures.append([loadTexture('./Resources/nave3.png'),loadTexture('./Resources/nave2.png'),loadTexture('./Resources/nave.png')])
-    player_Obj = Nave([screenWidth/2,30], 30,500,player_textures, True)
+    player_Obj = Nave([screenWidth/2,30], 30,player_textures, True)
      
     ##: Texturas de aliens
     alien_textures_type1.append([loadTexture('./Resources/gataliens/aliencat2.png'), loadTexture('./Resources/gataliens/aliencat.png')])

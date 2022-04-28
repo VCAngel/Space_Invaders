@@ -15,12 +15,12 @@ class Nave(GameObject):
     No tiene textura por default. Usar método set_laser_texture().
     """
 
-    def __init__(self, coords=[0, 0], hp=1, laser_timer=500, textures=[], is_player=True):
+    def __init__(self, coords=[0, 0], hp=1, textures=[], is_player=True):
         posX, posY = coords
         super().__init__(posX, posY, (int)(180/4), (int)(196/4), textures)
         self.__is_player = is_player
         self.__hp = hp
-        self.__laser_timer = laser_timer
+        self.__laser_timer = None
         self.__laser_textures = None
         self.__laser_type = 0
 
@@ -29,12 +29,6 @@ class Nave(GameObject):
     
     def decrease_hp(self, value):
         self.__hp -= value
-
-    def get_laser_timer(self):
-        return self.__laser_timer
-
-    def set_laser_timer(self, laser_timer):
-        self.__laser_timer = laser_timer
 
     def set_laser_type(self, type = 0):
         self.__laser_type = type
