@@ -43,6 +43,7 @@ PLAYER_RUN = 1
 menu_pug = None #-> Se usa para instancia GameObject
 menu_text = None
 background_Obj = None
+background_Obj_2 = None
 player_Obj = None
 alien_Objs = [] #-> Array de instancias Nave para aliens
 laser_Objs = []
@@ -156,8 +157,10 @@ def draw_laser():
 
 def draw_background():
     x,y = background_Obj.get_position()
+    x_2,y_2 = background_Obj_2.get_position()
     w,h = background_Obj.get_size()
     draw_texture(x,y,w,h,background_Obj.get_frame_to_draw())
+    draw_texture(x,y_2,w,h,background_Obj_2.get_frame_to_draw())
 
 def polygon(aristas, x1, y1, rad, rojo, verde , azul, rotacion):
     PI = 3.141592
@@ -343,7 +346,7 @@ def timer_create_lvl_1(value):
             timer_create_lvl_3(0)
 
     glutPostRedisplay()
-    glutTimerFunc (2000, timer_create_lvl_1,1)
+    glutTimerFunc (3000, timer_create_lvl_1,1)
 
 def timer_create_lvl_2(value):
     global alien_Objs
@@ -407,13 +410,26 @@ def timer_laser (value):
 
     object_out_of_bounds(laser_Objs)
     glutTimerFunc(500,timer_laser,1)
+
+def timer_move_background(value):
+    global background_Obj, background_Obj_2
+    if flag_enter:
+        x,y = background_Obj.get_position()
+        if y > -screenHeight*3:
+            background_Obj.alien_move()
+            background_Obj_2.alien_move()
+        else:
+            background_Obj = GameObject(0, 0, screenWidth, screenHeight*3, background_textures)
+            background_Obj_2 = GameObject(0, screenHeight*3, screenWidth, screenHeight*3, background_textures)
+
+    glutTimerFunc(50, timer_move_background, 1)
      
 
 #!----Main function-----
 
 def main():
     global menu_pug, menu_text
-    global background_Obj
+    global background_Obj, background_Obj_2
     global player_Obj, player_textures
     global alien_textures_type1, alien_textures_type2, alien_textures_type3, alien_textures_special
     global laser_textures
@@ -443,7 +459,7 @@ def main():
     ##: Texturas de jugador
     player_textures.append([loadTexture('./Resources/naveinput.png')])
     player_textures.append([loadTexture('./Resources/nave3.png'),loadTexture('./Resources/nave2.png'),loadTexture('./Resources/nave.png')])
-    player_Obj = Nave([screenWidth/2,30], 10,500,player_textures, True)
+    player_Obj = Nave([screenWidth/2,30], 50,500,player_textures, True)
      
     ##: Texturas de aliens
     alien_textures_type1.append([loadTexture('./Resources/gataliens/aliencat.png')])
@@ -459,8 +475,10 @@ def main():
     ##: Imagen de fondo
     background_textures.append([loadTexture('./Resources/fondo.png')])
     background_Obj = GameObject(0, 0, screenWidth, screenHeight*3, background_textures)
+    background_Obj_2 = GameObject(0, screenHeight*3, screenWidth, screenHeight*3, background_textures)
 
     #-> Timers
+    timer_move_background(0)
     timer_move_nave(0)
     timer_animate_nave(0)
     timer_create_lvl_1(0)
