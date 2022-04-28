@@ -124,7 +124,20 @@ def load_menu():
     draw_texture(text_x,text_y,text_w,text_h,menu_text.get_frame_to_draw())
     draw_texture(pug_x,pug_y,pug_w,pug_h,menu_pug.get_frame_to_draw())
 
-    #TODO Poligono para lentes
+    #aristas, x, y , rad, r, g, b, rotacion
+    polygon(4,750,350,50,0,0,0,.25)
+    polygon(4,780,350,50,0,0,0,.25)
+    polygon(4,900,350,50,0,0,0,.25)
+    polygon(4,930,350,50,0,0,0,.25)
+    polygon(4,820,375,10,0,0,0,.25)
+    polygon(4,830,375,10,0,0,0,.25)
+    polygon(4,840,375,10,0,0,0,.25)
+    polygon(4,850,375,10,0,0,0,.25)
+    polygon(4,860,375,10,0,0,0,.25)
+    polygon(4,870,375,10,0,0,0,.25)
+    polygon(4,750,370,5,1,1,1,1)
+    polygon(4,770,370,5,1,1,1,1)
+    polygon(4,930,370,5,1,1,1,1)
     
 
 #Alien
